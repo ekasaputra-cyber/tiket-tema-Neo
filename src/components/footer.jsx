@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="bg-gray-50 py-10 px-4 mt-16">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
-          <h4 className="font-bold text-gray-800 mb-3">Tiket</h4>
+          <h4 className="font-bold text-gray-800 mb-3">BeliSenang.com</h4>
           <p className="text-gray-600 text-sm">
             Platform pencarian event terdekat di Indonesia.
           </p>

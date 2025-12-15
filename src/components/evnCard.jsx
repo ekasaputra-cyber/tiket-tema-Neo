@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-export default function EventCard({ title, date, location, imageUrl, lowestPrice, dateEnd, timeEnd}) {
+export default function EventCard({ title, date, location, imageUrl, lowestPrice, dateEnd, timeEnd, slug}) {
 
   const isExpired = React.useMemo(() => {
     if (!dateEnd) return false;
@@ -13,8 +14,18 @@ export default function EventCard({ title, date, location, imageUrl, lowestPrice
 
     return endTime < now;
   }, [dateEnd, timeEnd]);
+  
+  const isClickable = !isExpired;
 
   return (
+    <Link
+      to={isClickable ? `/event/${slug}` : '#'}
+      className={`block rounded-xl shadow-md overflow-hidden hover:shadow-lg transition max-w-sm mx-auto ${
+        isExpired ? 'opacity-80 bg-gray-200' : 'bg-white'
+      } ${isClickable ? 'cursor-pointer' : 'cursor-default'}`}
+      aria-disabled={isExpired}
+      tabIndex={isExpired ? -1 : 0}
+    >
     <div className={`rounded-xl shadow-md overflow-hidden hover:shadow-lg transition max-w-sm mx-auto ${isExpired ? 'opacity-80 bg-gray-200' : 'bg-white'}`}>
         <div className="aspect-[1062/427] overflow-hidden relative">
             <img
@@ -53,5 +64,6 @@ export default function EventCard({ title, date, location, imageUrl, lowestPrice
             )}
         </div>
     </div>
+    </Link>
   );
 }

@@ -1,4 +1,6 @@
+// src/components/ExploreByTerritory.jsx
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import EventCard from './evnCard';
 
 const TERRITORY_SLUG_TO_NAME = {
@@ -13,49 +15,56 @@ const TERRITORY_SLUG_TO_NAME = {
 };
 
 export default function ExploreByTerritory() {
+  const { wilayah } = useParams();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [territoryName, setTerritoryName] = useState('');
+
+  const territoryName = TERRITORY_SLUG_TO_NAME[wilayah] || wilayah?.toUpperCase();
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const slug = urlParams.get('wilayah');
-
-    if (slug && TERRITORY_SLUG_TO_NAME[slug]) {
-      const name = TERRITORY_SLUG_TO_NAME[slug];
-      setTerritoryName(name);
-      fetchEvents(name);
-    } else {
+    if (!territoryName) {
       setLoading(false);
       setError('Wilayah tidak dikenali');
+      return;
     }
-  }, []);
 
-  const fetchEvents = async (territory) => {
-    try {
-      setLoading(true);
-      const encoded = encodeURIComponent(territory);
-      const res = await fetch(
-        `https://api.artatix.co.id/api/v1/customer/event/territory?territory=${encoded}`
-      );
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const encoded = encodeURIComponent(territoryName);
+        const res = await fetch(
+          `https://api.artatix.co.id/api/v1/customer/event/territory?territory=${encoded}`
+        );
 
-      if (!res.ok) throw new Error('Gagal memuat event');
-      const data = await res.json();
-      if (data.message === 'success' && Array.isArray(data.data)) {
-        setEvents(data.data);
-      } else {
-        throw new Error('Data tidak valid');
+        if (!res.ok) throw new Error('Gagal memuat event');
+        const data = await res.json();
+        if (data.message === 'success' && Array.isArray(data.data)) {
+          setEvents(data.data);
+        } else {
+          throw new Error('Data tidak valid');
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchEvents();
+  }, [wilayah]);
 
   const imageUrl = (path) => {
-    return path ? `https://assets.artatix.co.id/${path}` : null;
+    return path ? `https://api.artatix.co.id/${path}` : null;
+  };
+
+  const formatDate = (dateStr) => {
+    return new Date(dateStr).toLocaleDateString('id-ID', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
   };
 
   return (
@@ -76,17 +85,13 @@ export default function ExploreByTerritory() {
             <EventCard
               key={event.id}
               title={event.name}
-              date={`${new Date(event.dateStart).toLocaleDateString('id-ID', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}`}
+              date={formatDate(event.dateStart)}
               location={`${event.city}, ${event.province}`}
               imageUrl={imageUrl(event.image)}
               lowestPrice={event.lowestPrice}
               dateEnd={event.dateEnd}
               timeEnd={event.timeEnd}
+              slug={event.slug}
             />
           ))}
         </div>
