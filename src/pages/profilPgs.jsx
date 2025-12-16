@@ -1,6 +1,18 @@
 // src/pages/ProfilePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+// Import ikon dari react-icons/fa (Font Awesome 5)
+import { 
+  FaSpinner, 
+  FaExclamationCircle, 
+  FaUser, 
+  FaTicketAlt, 
+  FaHistory, 
+  FaSignOutAlt, 
+  FaCamera, 
+  FaEnvelope, 
+  FaEdit 
+} from 'react-icons/fa';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
@@ -14,14 +26,13 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
 
   const navigate = useNavigate();
-
-  // Ambil token dari localStorage
   const token = localStorage.getItem('auth_token');
+
   // Fetch profile
   useEffect(() => {
     const fetchProfile = async () => {
       if (!token) {
-        navigate('/login');
+        navigate('/masuk');
         return;
       }
 
@@ -50,7 +61,7 @@ export default function ProfilePage() {
       } catch (err) {
         console.error('Error:', err);
         setError(err.message);
-        navigate('/login');
+        navigate('/masuk');
       } finally {
         setLoading(false);
       }
@@ -99,220 +110,221 @@ export default function ProfilePage() {
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
-    navigate('/login');
+    window.location.href = '/masuk'; 
   };
 
-  if (loading) {
+  if (loading && !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Memuat profil...</p>
+      <div className="min-h-[60vh] flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center">
+          {/* ICON LOADING */}
+          <FaSpinner className="animate-spin h-10 w-10 text-[#154D71] mb-4" />
+          <p className="text-gray-600 font-medium">Memuat data profil...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-600">Error: {error || 'Profil tidak ditemukan'}</p>
-        <button
-          onClick={() => navigate('/login')}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Kembali ke Login
-        </button>
+      <div className="min-h-[60vh] flex items-center justify-center bg-gray-50">
+        <div className="bg-white p-8 rounded-xl shadow-lg text-center max-w-sm">
+          {/* ICON ERROR */}
+          <div className="flex justify-center mb-4">
+            <FaExclamationCircle className="h-12 w-12 text-red-500" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-800 mb-2">Terjadi Kesalahan</h3>
+          <p className="text-gray-600 mb-6">{error || 'Profil tidak ditemukan'}</p>
+          <button onClick={() => navigate('/masuk')} className="w-full px-4 py-2 bg-[#154D71] text-white rounded-lg">
+            Kembali ke Login
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white h-screen fixed left-0 top-0 shadow-md p-6">
-        <div className="flex items-center mb-8">
-          <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xl font-bold text-gray-600">
-            {profile.name?.charAt(0) || 'G'}
-          </div>
-          <div className="ml-3">
-            <p className="font-semibold text-gray-800">{profile.email}</p>
-            <p className="text-sm text-gray-500">{profile.email}</p>
-          </div>
-        </div>
+    <div className="bg-gray-50 min-h-screen pb-12">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-10">
+        
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+          
+          {/* === SIDEBAR === */}
+          <div className="w-full md:w-72 flex-shrink-0">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden md:sticky md:top-24">
+              
+              {/* User Info Sidebar */}
+              <div className="p-6 border-b border-gray-100 flex items-center md:block">
+                <div className="w-14 h-14 bg-[#154D71] text-white rounded-full flex items-center justify-center text-xl font-bold shadow-md shrink-0">
+                  {profile.name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="ml-4 md:ml-0 md:mt-4">
+                  <p className="font-bold text-gray-800 truncate">{profile.name}</p>
+                  <p className="text-xs text-gray-500 truncate">{profile.email}</p>
+                </div>
+              </div>
 
-        <nav className="space-y-2">
-          <button
-            className="w-full flex items-center px-4 py-3 text-gray-800 hover:bg-blue-50 hover:text-blue-600 rounded-lg"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14a4 4 0 014 4h0a4 4 0 01-4 4h0a4 4 0 01-4-4h0a4 4 0 014-4z" />
-            </svg>
-            Profil
-          </button>
+              {/* Menu Navigasi */}
+              <nav className="p-3 space-y-1">
+                <button className="w-full flex items-center px-4 py-3 bg-[#154D71]/10 text-[#154D71] font-medium rounded-xl transition">
+                  <FaUser className="h-5 w-5 mr-3" />
+                  Profil Saya
+                </button>
+                <button className="w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#154D71] rounded-xl transition">
+                  <FaTicketAlt className="h-5 w-5 mr-3" />
+                  Tiket Saya
+                </button>
+                <button className="w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-[#154D71] rounded-xl transition">
+                  <FaHistory className="h-5 w-5 mr-3" />
+                  Riwayat Transaksi
+                </button>
+              </nav>
 
-          <button
-            className="w-full flex items-center px-4 py-3 text-gray-800 hover:bg-blue-50 hover:text-blue-600 rounded-lg"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 14h.01M18 14h.01M15 11h3M12 11h.01M9 11h.01M7 21h10v-2a3 3 0 005.356-2.87l-2.26-2.26A3 3 0 0015.356 9h-6.716a3 3 0 00-2.87l-2.26 2.26A3 3 0 007 14v2" />
-            </svg>
-            Tiket Transaksi
-          </button>
-
-          <button
-            className="w-full flex items-center px-4 py-3 text-gray-800 hover:bg-blue-50 hover:text-blue-600 rounded-lg"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h-2m-2 0H9M9 20V4m2 0V16M17 4m-2 4h2m2-4h2" />
-            </svg>
-            Tiket Personal
-          </button>
-
-          <button
-            className="w-full flex items-center px-4 py-3 text-gray-800 hover:bg-blue-50 hover:text-blue-600 rounded-lg"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9M5 11V9m2 2a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6z" />
-            </svg>
-            Transaksi
-          </button>
-        </nav>
-
-        <div className="mt-8 pt-4 border-t">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-5.356-2.87l-2.26-2.26A3 3 0 0111 16v1c4.083 0 7.5-3.417 7.5-7.5S15.083 4 11 4c-1.761 0-3.204.672-4.204 1.672-1 .995-1.328 2.167-1.204 3.356L9 10.5M15 13.5H9" />
-            </svg>
-            Keluar
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="ml-64 flex-grow p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Profil</h1>
-
-        <div className="bg-white rounded-xl shadow-md p-6">
-          {/* Gambar Profil */}
-        <div className="flex items-center mb-6">
-          <div className="relative w-16 h-16 rounded-full overflow-hidden">
-            {profile.photoProfile ? (
-              <img
-                src={`https://api.artatix.co.id/${profile.photoProfile}`}
-                alt="Foto Profil"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextElementSibling.style.display = 'flex';
-                }}
-              />
-            ) : null}
-            
-            <div
-              className={`absolute inset-0 flex items-center justify-center text-xl font-bold text-gray-600 bg-gray-200 ${
-                profile.photoProfile ? 'hidden' : 'flex'
-              }`}
-            >
-              {profile.fullname?.charAt(0) || profile.email?.charAt(0) || 'G'}
-            </div>
-          </div>
-
-          <div className="ml-4">
-            <p className="text-sm text-gray-600">Gambar Profil</p>
-            <div className="flex space-x-2 mt-2">
-              <button className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100">
-                Ganti Foto
-              </button>
-              <button className="px-4 py-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100">
-                Hapus Foto
-              </button>
-            </div>
-          </div>
-        </div>
-
-          {/* Form Edit Profil */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className={`w-full px-4 py-2 border rounded-lg ${
-                  isEditing ? 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none' : 'bg-gray-50'
-                }`}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className={`w-full px-4 py-2 border rounded-lg ${
-                  isEditing ? 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none' : 'bg-gray-50'
-                }`}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
-              <div className="flex">
-                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
-                  +62
-                </span>
-                <input
-                  type="text"
-                  name="phoneNumber"
-                  value={formData.phoneNumber.replace(/^62/, '')}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '');
-                    setFormData(prev => ({ ...prev, phoneNumber: `62${value}` }));
-                  }}
-                  disabled={!isEditing}
-                  className={`block w-full min-w-0 flex-1 rounded-r-md border border-gray-300 px-3 py-2 ${
-                    isEditing ? 'focus:ring-2 focus:ring-blue-500 focus:outline-none' : 'bg-gray-50'
-                  }`}
-                />
+              <div className="p-3 mt-2 border-t border-gray-100">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center px-4 py-3 text-red-600 bg-red-50 hover:bg-red-100 font-medium rounded-xl transition"
+                >
+                  <FaSignOutAlt className="h-5 w-5 mr-3" />
+                  Keluar
+                </button>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 flex justify-end">
-            {isEditing ? (
-              <>
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="mr-2 px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                >
-                  Batal
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={loading}
-                  className={`px-6 py-2 rounded-lg text-white ${
-                    loading ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
-                >
-                  {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-6 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700"
-              >
-                Edit Profil
-              </button>
-            )}
+          {/* === CONTENT AREA === */}
+          <div className="flex-1">
+            
+            <div className="mb-6 md:mb-8">
+              <h1 className="text-2xl md:text-3xl font-bold text-[#154D71]">Pengaturan Akun</h1>
+              <p className="text-gray-500 text-sm md:text-base mt-1">Kelola informasi profil dan keamanan akun Anda</p>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              
+              {/* Banner Area */}
+              <div className="bg-gradient-to-r from-[#154D71] to-[#1e6b9c] p-6 md:p-8 text-white flex flex-col md:flex-row items-center gap-6">
+                <div className="relative group">
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white/30 overflow-hidden bg-white">
+                    {profile.photoProfile ? (
+                      <img
+                        src={`https://api.artatix.co.id/${profile.photoProfile}`}
+                        alt="Profil"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextElementSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className={`w-full h-full flex items-center justify-center text-3xl font-bold text-[#154D71] bg-gray-100 ${profile.photoProfile ? 'hidden' : 'flex'}`}>
+                      {profile.name?.charAt(0).toUpperCase()}
+                    </div>
+                  </div>
+                  {/* Tombol Ganti Foto (Kamera) */}
+                  <button className="absolute bottom-0 right-0 bg-[#FFD600] text-[#154D71] p-2 rounded-full shadow-lg hover:scale-110 transition flex items-center justify-center">
+                    <FaCamera className="h-4 w-4" />
+                  </button>
+                </div>
+                
+                <div className="text-center md:text-left">
+                  <h2 className="text-xl md:text-2xl font-bold">{profile.name}</h2>
+                  <p className="text-blue-100 text-sm md:text-base">{profile.email}</p>
+                </div>
+              </div>
+
+              {/* Form Area */}
+              <div className="p-6 md:p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                  
+                  {/* Nama */}
+                  <div className="col-span-1 md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaUser className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className={`w-full pl-10 pr-4 py-3 rounded-xl border transition-all ${
+                          isEditing 
+                            ? 'border-gray-300 focus:ring-2 focus:ring-[#154D71] bg-white' 
+                            : 'border-transparent bg-gray-50 text-gray-500'
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaEnvelope className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                        className={`w-full pl-10 pr-4 py-3 rounded-xl border transition-all ${
+                          isEditing 
+                            ? 'border-gray-300 focus:ring-2 focus:ring-[#154D71] bg-white' 
+                            : 'border-transparent bg-gray-50 text-gray-500'
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Telepon */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Nomor Telepon</label>
+                    <div className="flex">
+                      <span className={`inline-flex items-center px-3 rounded-l-xl border border-r-0 text-gray-500 ${isEditing ? 'bg-white border-gray-300' : 'bg-gray-50 border-transparent'}`}>+62</span>
+                      <input
+                        type="text"
+                        name="phoneNumber"
+                        value={formData.phoneNumber.replace(/^62/, '')}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '');
+                          setFormData(prev => ({ ...prev, phoneNumber: `62${value}` }));
+                        }}
+                        disabled={!isEditing}
+                        className={`w-full px-4 py-3 rounded-r-xl border transition-all ${
+                          isEditing 
+                            ? 'border-gray-300 focus:ring-2 focus:ring-[#154D71] bg-white' 
+                            : 'border-transparent bg-gray-50 text-gray-500'
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-100">
+                  {isEditing ? (
+                    <>
+                      <button onClick={() => setIsEditing(false)} className="px-6 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50">Batal</button>
+                      <button onClick={handleSave} disabled={loading} className="px-8 py-2.5 rounded-xl bg-[#154D71] text-white font-bold hover:bg-[#0f3a55]">
+                        {loading ? '...' : 'Simpan'}
+                      </button>
+                    </>
+                  ) : (
+                    <button onClick={() => setIsEditing(true)} className="flex items-center px-8 py-2.5 rounded-xl bg-[#FFD600] text-[#154D71] font-bold hover:bg-yellow-400 transition transform active:scale-95">
+                      <FaEdit className="h-5 w-5 mr-2" />
+                      Edit Profil
+                    </button>
+                  )}
+                </div>
+              </div>
+
+            </div>
           </div>
+
         </div>
       </div>
     </div>
