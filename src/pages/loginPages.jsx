@@ -38,7 +38,8 @@ export default function LoginPage() {
 
     try {
       // Gunakan proxy (di package.json: "proxy": "https://artatix.co.id")
-      const res = await fetch('/api/auth/sign-in', {
+      // const res = await fetch('/api/auth/sign-in', {
+      const res = await fetch('https://artatix.co.id/api/auth/sign-in', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -71,7 +72,8 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const res = await fetch('/api/auth/verify-otp', {
+      // const res = await fetch('/api/auth/verify-otp', {
+      const res = await fetch('https://artatix.co.id/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: otpCode }),
