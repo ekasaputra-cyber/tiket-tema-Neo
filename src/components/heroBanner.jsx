@@ -21,10 +21,29 @@ export default function HeroBanner() {
   const imagesLength = images.length;
   const [currentIndex, setCurrentIndex] = useState(2);
   const [isTransitioning, setIsTransitioning] = useState(true);
+  
+  // State untuk mendeteksi layar mobile
+  const [isMobile, setIsMobile] = useState(false);
+  
   const intervalRef = useRef(null);
-
   const TRANSITION_DURATION = 1000;
-// eslint-disable-next-line react-hooks/exhaustive-deps
+
+  // Cek ukuran layar saat load dan resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768); // 768px adalah breakpoint md di Tailwind
+    };
+
+    // Set initial value
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Tentukan lebar slide berdasarkan device
+  const slideWidth = isMobile ? 100 : 50;
+
   const nextSlide = useCallback(() => {
     if (currentIndex >= imagesLength - 2) return;
     setIsTransitioning(true);
@@ -60,7 +79,7 @@ export default function HeroBanner() {
   }, [nextSlide]);
 
   return (
-    <section className="bg-white py-8 my-5 pt-20">
+    <section className="bg-white py-4 md:py-8 my-5 pt-20">
       <div
         className="max-w-7xl mx-auto relative"
         onMouseEnter={() => clearInterval(intervalRef.current)}
@@ -68,11 +87,12 @@ export default function HeroBanner() {
           intervalRef.current = setInterval(() => nextSlide(), 3000);
         }}
       >
-        <div id="img-carousel" className="overflow-hidden px-4 relative">
+        <div id="img-carousel" className="overflow-hidden px-0 md:px-4 relative group">
           <div
             className="flex"
             style={{
-              transform: `translateX(-${currentIndex * 50}%)`,
+              // Gunakan slideWidth dinamis (100% atau 50%)
+              transform: `translateX(-${currentIndex * slideWidth}%)`,
               transition: isTransitioning ? `transform ${TRANSITION_DURATION}ms ease-in-out` : 'none',
             }}
           >
@@ -80,9 +100,11 @@ export default function HeroBanner() {
               <div
                 key={idx}
                 className="relative flex-shrink-0 px-2 flex items-center justify-center"
-                style={{ width: '50%' }}
+                // Lebar item dinamis
+                style={{ width: `${slideWidth}%` }}
               >
-                <div className="w-full h-72 bg-gray-50 rounded-2xl flex items-center justify-center overflow-hidden">
+                {/* Tinggi responsive: h-56 di mobile, h-72 di desktop */}
+                <div className="w-full h-56 md:h-72 bg-gray-50 rounded-xl md:rounded-2xl flex items-center justify-center overflow-hidden">
                   <img
                     src={img.src}
                     alt={img.alt}
@@ -93,20 +115,21 @@ export default function HeroBanner() {
             ))}
           </div>
 
+          {/* Tombol Navigasi - Dibuat sedikit lebih kecil di mobile */}
           <button
             onClick={prevSlide}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white text-[#1C6EA4] rounded-full shadow-lg hover:bg-gray-100 flex items-center justify-center border border-gray-100"
-            style={{ width: 48, height: 48 }}
+            className="absolute left-2 md:left-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 text-[#1C6EA4] rounded-full shadow-lg hover:bg-white flex items-center justify-center border border-gray-100 backdrop-blur-sm"
+            style={{ width: isMobile ? 36 : 48, height: isMobile ? 36 : 48 }}
           >
-            <FaChevronLeft size={24} />
+            <FaChevronLeft size={isMobile ? 16 : 24} />
           </button>
 
           <button
             onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white text-[#1C6EA4] rounded-full shadow-lg hover:bg-gray-100 flex items-center justify-center border border-gray-100"
-            style={{ width: 48, height: 48 }}
+            className="absolute right-2 md:right-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 text-[#1C6EA4] rounded-full shadow-lg hover:bg-white flex items-center justify-center border border-gray-100 backdrop-blur-sm"
+            style={{ width: isMobile ? 36 : 48, height: isMobile ? 36 : 48 }}
           >
-            <FaChevronRight size={24} />
+            <FaChevronRight size={isMobile ? 16 : 24} />
           </button>
         </div>
       </div>

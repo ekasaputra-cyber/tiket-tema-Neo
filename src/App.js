@@ -14,7 +14,9 @@ import ProfilePage from './pages/profilPgs';
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      
       <Header />
+      
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<RegionNav />} />
@@ -27,6 +29,7 @@ export default function App() {
           <Route path="/profil" element={<ProfilePage />} />
         </Routes>
       </main>
+      
       <Footer />
     </div>
   );
