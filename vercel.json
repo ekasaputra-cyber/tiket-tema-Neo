@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://artatix.co.id/api/$1"
+    }
+  ]
+}
