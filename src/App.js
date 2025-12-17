@@ -2,7 +2,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Header from './components/header';
-import RegionNav from './components/regionNav';
 import ExploreByTerritory from './components/ExploreByTerritory';
 import EventDetail from './components/eventDet';
 import TicketSelection from './components/pilihTiket';
