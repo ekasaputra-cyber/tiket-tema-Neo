@@ -40,7 +40,7 @@ export default function HomeCard({ title, date, location, imageUrl, lowestPrice,
       <div className={`flex flex-col h-full ${isExpired ? 'bg-gray-200' : 'bg-white'}`}>
         
         {/* --- IMAGE SECTION --- */}
-        <div className="relative aspect-video overflow-hidden bg-gray-100">
+        <div className="aspect-[1062/427] overflow-hidden relative bg-gray-100">
           <img
             src={imageUrl || "https://placehold.co/600x400?text=No+Image"}
             alt={title}

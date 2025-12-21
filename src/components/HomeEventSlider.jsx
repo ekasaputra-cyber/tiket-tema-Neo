@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MdArrowForward } from "react-icons/md";
-import HomeCard from './CardHome'; // Sesuaikan path import ini
+import HomeCard from './CardHome';
 
 export default function EventSlider() {
   // --- STATE MANAGEMENT ---

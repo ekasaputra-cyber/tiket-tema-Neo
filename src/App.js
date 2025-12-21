@@ -8,8 +8,12 @@ import TicketSelection from './components/pilihTiket';
 import PaymentStatus from './components/payStat';
 import Footer from './components/footer';
 import LoginPage from './pages/loginPages';
-import ProfilePage from './pages/profilPgs';
 import Home from './pages/home';
+
+import ProfileLayout from './components/Layout/ProfLay';
+import ProfileSettings from './pages/profile/ProfilSett';
+import MyTickets from './pages/profile/TiketSaya';
+import TransactionHistory from './pages/profile/HistoryTransaksi';
 
 export default function App() {
   return (
@@ -26,8 +30,14 @@ export default function App() {
           <Route path="/payment/:orderId" element={<PaymentStatus />} />
           <Route path="/masuk" element={<LoginPage />} />
           <Route path="/daftar" element={<LoginPage />} />
-          <Route path="/profil" element={<ProfilePage />} />
+
+          <Route path="/profil" element={<ProfileLayout />}>
+            <Route index element={<ProfileSettings />} />  {/* /profil */}
+            <Route path="tiket" element={<MyTickets />} /> {/* /profil/tiket */}
+            <Route path="transaksi" element={<TransactionHistory />} /> {/* /profil/transaksi */}
+          </Route>
         </Routes>
+
       </main>
       
       <Footer />

@@ -72,7 +72,7 @@ export default function Header() {
             
             {/* BAGIAN KIRI: Logo & Navigasi Desktop */}
             <div className="flex items-center">
-              <a href="/" className="text-xl font-bold text-white mr-6">BeliSenang.com</a>
+              <a href="/" className="text-xl font-bold text-white mr-6">belisenang</a>
               
               <nav className="hidden md:flex space-x-6">
                 <a href="/jelajah" className="text-white font-medium text-lg hover:text-[#FFD600] transition">Jelajah</a>

@@ -1,7 +1,8 @@
 import React from 'react';
 import HeroBanner from '../components/heroBanner';
 import RegionNav from '../components/regionNav';
-import EventSlider from '../components/HomeEventSlider'; // Import komponen yang baru dibuat
+import EventSlider from '../components/HomeEventSlider';
+import EventBanner from '../components/Cta';
 
 export default function Home() {
   return (
@@ -19,6 +20,8 @@ export default function Home() {
       <div className="mt-8">
         <RegionNav />
       </div>
+
+      <EventBanner />
 
     </div>
   );
