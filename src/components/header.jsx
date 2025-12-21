@@ -63,26 +63,33 @@ export default function Header() {
     </div>
   );
 
+  // ... (bagian import dan logic state tetap sama)
+
   return (
     <>
-      {/* === HEADER UTAMA (Sticky) === */}
-      <header className="sticky top-0 z-40 w-full bg-[#154D71] shadow-lg">
+      {/* === HEADER UTAMA (Sticky) === 
+          UBAH: bg-[#154D71] -> bg-[#6D28D9] (Ungu) 
+      */}
+      <header className="sticky top-0 z-40 w-full bg-[#6D28D9] shadow-lg">
         <div className="container mx-auto px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             
             {/* BAGIAN KIRI: Logo & Navigasi Desktop */}
             <div className="flex items-center">
+              {/* Logo text tetap putih agar kontras */}
               <a href="/" className="text-xl font-bold text-white mr-6">belisenang</a>
               
               <nav className="hidden md:flex space-x-6">
-                <a href="/jelajah" className="text-white font-medium text-lg hover:text-[#FFD600] transition">Jelajah</a>
-                <a href="/tentang" className="text-white font-medium text-lg hover:text-[#FFD600] transition">Tentang</a>
+                {/* UBAH: hover:text-[#FFD600] -> hover:text-[#FFD028] */}
+                <a href="/jelajah" className="text-white font-medium text-lg hover:text-[#FFD028] transition">Jelajah</a>
+                <a href="/tentang" className="text-white font-medium text-lg hover:text-[#FFD028] transition">Tentang</a>
               </nav>
             </div>
 
             {/* BAGIAN TENGAH: Search Bar */}
             <div className="hidden md:flex flex-1 mx-4 max-w-lg">
-              <div className="flex items-center w-full bg-white rounded-lg px-3 py-1.5 focus-within:ring-2 focus-within:ring-[#FFD600]">
+              {/* UBAH: focus-within:ring-[#FFD600] -> focus-within:ring-[#FFD028] */}
+              <div className="flex items-center w-full bg-white rounded-lg px-3 py-1.5 focus-within:ring-2 focus-within:ring-[#FFD028]">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
                 </svg>
@@ -101,12 +108,10 @@ export default function Header() {
               <div className="hidden md:flex space-x-3 items-center">
                 {isLoggedIn ? (
                   // === TAMPILAN JIKA SUDAH LOGIN ===
-                  <a href="/profil" className="flex items-center gap-2 text-white hover:text-[#FFD600] font-medium transition group">
-                    {/* Tampilkan Foto atau Default Icon */}
+                  // UBAH: hover:text-[#FFD600] -> hover:text-[#FFD028]
+                  <a href="/profil" className="flex items-center gap-2 text-white hover:text-[#FFD028] font-medium transition group">
                     {renderProfileImage()}
                     {renderDefaultIcon()}
-                    
-                    {/* Tampilkan Nama Depan (Opsional) atau text Akun Saya */}
                     <span className="truncate max-w-[100px]">
                       {profile ? profile.name?.split(' ')[0] : 'Akun Saya'}
                     </span>
@@ -114,21 +119,22 @@ export default function Header() {
                 ) : (
                   // === TAMPILAN JIKA BELUM LOGIN ===
                   <>
-                    <a href="/masuk" className="bg-[#FFD600] text-black font-semibold px-6 py-2 rounded-md text-lg hover:bg-yellow-400 transition">
+                    {/* UBAH: bg-[#FFD600] -> bg-[#FFD028] (Kuning Tiket) */}
+                    <a href="/masuk" className="bg-[#FFD028] text-[#6D28D9] font-bold px-6 py-2 rounded-md text-lg hover:bg-white hover:text-[#6D28D9] transition shadow-md">
                       Masuk
                     </a>
-                    <a href="/daftar" className="border border-[#FFD600] text-[#FFD600] font-semibold px-6 py-2 rounded-md text-lg hover:bg-[#FFD600] hover:text-black transition">
+                    {/* UBAH: Border & Text menyesuaikan tema */}
+                    <a href="/daftar" className="border-2 border-[#FFD028] text-[#FFD028] font-bold px-6 py-2 rounded-md text-lg hover:bg-[#FFD028] hover:text-[#6D28D9] transition">
                       Daftar
                     </a>
                   </>
                 )}
               </div>
 
-              {/* Tombol Hamburger (Mobile Only) */}
+              {/* Tombol Hamburger */}
               <button
                 className="md:hidden text-white focus:outline-none p-1"
                 onClick={() => setIsMenuOpen(true)}
-                aria-label="Open navigation menu"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -155,10 +161,11 @@ export default function Header() {
         <div className="p-5 flex flex-col h-full">
           
           <div className="flex items-center justify-between mb-8 border-b pb-4">
-            <span className="text-xl font-bold text-[#154D71]">BeliSenang</span>
+            {/* UBAH: text-[#154D71] -> text-[#6D28D9] */}
+            <span className="text-xl font-bold text-[#6D28D9]">BeliSenang</span>
             <button 
               onClick={() => setIsMenuOpen(false)}
-              className="text-gray-500 hover:text-red-500 transition"
+              className="text-gray-500 hover:text-[#EC4899] transition" // Hover jadi Pink
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -167,7 +174,8 @@ export default function Header() {
           </div>
 
           <div className="mb-6">
-            <div className="flex items-center w-full bg-gray-100 rounded-lg px-3 py-3 border focus-within:ring-2 focus-within:ring-[#154D71]">
+            {/* UBAH: focus-within:ring-[#154D71] -> focus-within:ring-[#6D28D9] */}
+            <div className="flex items-center w-full bg-gray-100 rounded-lg px-3 py-3 border focus-within:ring-2 focus-within:ring-[#6D28D9]">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
               </svg>
@@ -176,18 +184,18 @@ export default function Header() {
           </div>
 
           <nav className="flex flex-col space-y-4 mb-8">
-            <a href="/" className="text-gray-700 font-medium text-lg hover:text-[#154D71]">Beranda</a>
-            <a href="/event" className="text-gray-700 font-medium text-lg hover:text-[#154D71]">Event</a>
-            <a href="/tentang" className="text-gray-700 font-medium text-lg hover:text-[#154D71]">Tentang</a>
+            {/* UBAH: hover:text-[#154D71] -> hover:text-[#6D28D9] */}
+            <a href="/" className="text-gray-700 font-medium text-lg hover:text-[#6D28D9]">Beranda</a>
+            <a href="/event" className="text-gray-700 font-medium text-lg hover:text-[#6D28D9]">Event</a>
+            <a href="/tentang" className="text-gray-700 font-medium text-lg hover:text-[#6D28D9]">Tentang</a>
           </nav>
 
           {/* ✅ LOGIC TOMBOL MOBILE */}
           <div className="mt-auto flex flex-col space-y-3">
             {isLoggedIn ? (
-               // === MOBILE: SUDAH LOGIN ===
                <>
-                <a href="/profil" className="bg-[#154D71] text-white text-center font-semibold px-6 py-3 rounded-xl hover:bg-[#0f3a55] transition flex items-center justify-center gap-2">
-                  {/* Foto Profil Mobile */}
+                {/* UBAH: bg-[#154D71] -> bg-[#6D28D9] */}
+                <a href="/profil" className="bg-[#6D28D9] text-white text-center font-semibold px-6 py-3 rounded-xl hover:bg-[#5b21b6] transition flex items-center justify-center gap-2">
                   {profile && profile.photoProfile ? (
                      <img 
                        src={`https://api.artatix.co.id/${profile.photoProfile}`} 
@@ -206,12 +214,13 @@ export default function Header() {
                 </button>
                </>
             ) : (
-               // === MOBILE: BELUM LOGIN ===
                <>
-                <a href="/masuk" className="bg-[#154D71] text-white text-center font-semibold px-6 py-3 rounded-xl hover:bg-[#0f3a55] transition">
+                {/* UBAH: bg-[#154D71] -> bg-[#6D28D9] */}
+                <a href="/masuk" className="bg-[#6D28D9] text-white text-center font-semibold px-6 py-3 rounded-xl hover:bg-[#5b21b6] transition">
                   Masuk
                 </a>
-                <a href="/daftar" className="border-2 border-[#154D71] text-[#154D71] text-center font-semibold px-6 py-3 rounded-xl hover:bg-gray-50 transition">
+                {/* UBAH: border-[#154D71] text-[#154D71] -> border-[#6D28D9] text-[#6D28D9] */}
+                <a href="/daftar" className="border-2 border-[#6D28D9] text-[#6D28D9] text-center font-semibold px-6 py-3 rounded-xl hover:bg-purple-50 transition">
                   Daftar
                 </a>
                </>

@@ -10,7 +10,6 @@ const originalImages = [
 ];
 
 export default function HeroBanner() {
-  // Menambahkan clone di awal dan akhir untuk efek infinite loop
   const images = [
     originalImages[originalImages.length - 2],
     originalImages[originalImages.length - 1],
@@ -20,21 +19,14 @@ export default function HeroBanner() {
   ];
 
   const imagesLength = images.length;
-  const [currentIndex, setCurrentIndex] = useState(2); // Mulai dari index 2 (gambar asli pertama)
+  const [currentIndex, setCurrentIndex] = useState(2);
   const [isTransitioning, setIsTransitioning] = useState(true);
-  
-  // State untuk mendeteksi layar mobile
   const [isMobile, setIsMobile] = useState(false);
-  
   const intervalRef = useRef(null);
   const TRANSITION_DURATION = 1000;
 
-  // Cek ukuran layar saat load dan resize
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -54,7 +46,6 @@ export default function HeroBanner() {
     setCurrentIndex(prev => prev - 1);
   }, [currentIndex]);
 
-  // Infinite loop reset logic
   useEffect(() => {
     const transitionTimeout = setTimeout(() => {
       if (currentIndex === images.length - 2) {
@@ -68,34 +59,23 @@ export default function HeroBanner() {
     return () => clearTimeout(transitionTimeout);
   }, [currentIndex, images.length]);
 
-  // Auto-play
   useEffect(() => {
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 3000);
+    const interval = setInterval(() => nextSlide(), 3000);
     return () => clearInterval(interval);
   }, [nextSlide]);
 
-  // --- LOGIC DOTS ---
-  // Menghitung index asli (0-4) dari currentIndex yang mengandung clone
-  // Rumus: (currentIndex - 2) modulo total asli. 
-  // Ditambah length agar tidak negatif saat transisi mundur.
   const realIndex = (currentIndex - 2 + originalImages.length) % originalImages.length;
 
-  // Fungsi jika user klik dot secara langsung
   const handleDotClick = (index) => {
     setIsTransitioning(true);
-    setCurrentIndex(index + 2); // +2 karena ada 2 clone di depan
+    setCurrentIndex(index + 2);
   };
 
   return (
-    <section className="bg-gray-50 py-4 md:py-8 my-5 pt-20">
+    <section className="bg-[#F5F3FF] py-4 md:py-8 my-5 pt-20">
       <div
         className="max-w-7xl mx-auto relative"
         onMouseEnter={() => clearInterval(intervalRef.current)}
-        onMouseLeave={() => {
-          // Restart interval logic (optional, but good for UX consistency)
-        }}
       >
         <div id="img-carousel" className="overflow-hidden px-0 md:px-4 relative group">
           <div
@@ -111,7 +91,8 @@ export default function HeroBanner() {
                 className="relative flex-shrink-0 px-2 flex items-center justify-center"
                 style={{ width: `${slideWidth}%` }}
               >
-                <div className="w-full h-56 md:h-72 bg-gray-50 rounded-xl md:rounded-2xl flex items-center justify-center overflow-hidden shadow-sm">
+                {/* UBAH: bg-gray-50 -> bg-white (Agar gambar lebih kontras & bersih) */}
+                <div className="w-full h-56 md:h-72 bg-white rounded-xl md:rounded-2xl flex items-center justify-center overflow-hidden shadow-sm border border-purple-100">
                   <img
                     src={img.src}
                     alt={img.alt}
@@ -125,7 +106,9 @@ export default function HeroBanner() {
           {/* Tombol Previous */}
           <button
             onClick={prevSlide}
-            className="absolute left-2 md:left-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 text-[#1C6EA4] rounded-full shadow-lg hover:bg-white flex items-center justify-center border border-gray-100 backdrop-blur-sm transition-all"
+            // UBAH: text-[#1C6EA4] -> text-[#6D28D9] (Ungu)
+            // UBAH: hover:bg-white -> hover:bg-[#FFD028] (Kuning Tiket)
+            className="absolute left-2 md:left-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 text-[#6D28D9] rounded-full shadow-lg hover:bg-[#FFD028] hover:text-[#6D28D9] flex items-center justify-center border border-purple-100 backdrop-blur-sm transition-all"
             style={{ width: isMobile ? 36 : 48, height: isMobile ? 36 : 48 }}
           >
             <FaChevronLeft size={isMobile ? 16 : 24} />
@@ -134,7 +117,9 @@ export default function HeroBanner() {
           {/* Tombol Next */}
           <button
             onClick={nextSlide}
-            className="absolute right-2 md:right-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 text-[#1C6EA4] rounded-full shadow-lg hover:bg-white flex items-center justify-center border border-gray-100 backdrop-blur-sm transition-all"
+            // UBAH: text-[#1C6EA4] -> text-[#6D28D9] (Ungu)
+            // UBAH: hover:bg-white -> hover:bg-[#FFD028] (Kuning Tiket)
+            className="absolute right-2 md:right-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 text-[#6D28D9] rounded-full shadow-lg hover:bg-[#FFD028] hover:text-[#6D28D9] flex items-center justify-center border border-purple-100 backdrop-blur-sm transition-all"
             style={{ width: isMobile ? 36 : 48, height: isMobile ? 36 : 48 }}
           >
             <FaChevronRight size={isMobile ? 16 : 24} />
@@ -147,11 +132,13 @@ export default function HeroBanner() {
             <button
               key={idx}
               onClick={() => handleDotClick(idx)}
-              // Logic class: Jika aktif width w-8 (panjang), jika tidak w-2 (bulat kecil)
+              // UBAH LOGIC WARNA:
+              // Aktif: bg-[#6D28D9] (Ungu Utama)
+              // Tidak Aktif: bg-purple-200 hover:bg-[#EC4899] (Pink saat hover)
               className={`h-2 rounded-full transition-all duration-500 ease-in-out ${
                 realIndex === idx 
-                  ? 'w-8 bg-[#1C6EA4]' 
-                  : 'w-2 bg-gray-300 hover:bg-gray-400'
+                  ? 'w-8 bg-[#6D28D9]' 
+                  : 'w-2 bg-purple-200 hover:bg-[#EC4899]'
               }`}
               aria-label={`Go to slide ${idx + 1}`}
             />

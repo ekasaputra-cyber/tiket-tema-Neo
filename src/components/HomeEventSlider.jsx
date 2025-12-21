@@ -47,16 +47,20 @@ export default function EventSlider() {
     <div className="container mx-auto max-w-6xl my-8">
       {/* --- HEADER SECTION --- */}
       <div className="flex justify-between items-center mb-6 px-4 md:px-0">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+        {/* UBAH: text-gray-800 -> text-[#4C1D95] (Ungu Gelap Footer) */}
+        <h1 className="text-2xl md:text-3xl font-bold text-[#4C1D95]">
             Event Terdekat
         </h1>
         
         <Link 
             to={SEE_ALL_LINK} 
             state={{ startPage: 2, autoScroll: true }} 
-            className="text-blue-600 hover:text-blue-800 font-semibold text-sm flex items-center group"
+            // UBAH: text-blue-600 -> text-[#EC4899] (Pink)
+            // UBAH: hover:text-blue-800 -> hover:text-[#6D28D9] (Ungu Header)
+            className="text-[#EC4899] hover:text-[#6D28D9] font-bold text-sm flex items-center group transition-colors"
         >
             Lihat Semua
+            {/* Ikon panah ikut berubah warna sesuai parent */}
             <span className="ml-1 transition-transform group-hover:translate-x-1">
                 <MdArrowForward size={20} />
             </span>
@@ -67,7 +71,8 @@ export default function EventSlider() {
       {loading && (
          <div className="flex space-x-4 overflow-hidden px-4 md:px-0">
              {[1, 2, 3].map((n) => (
-                 <div key={n} className="min-w-[280px] h-64 bg-gray-200 rounded-lg animate-pulse"></div>
+                 // UBAH: bg-gray-200 -> bg-purple-100 (Skeleton nuansa ungu)
+                 <div key={n} className="min-w-[280px] h-64 bg-purple-100 rounded-lg animate-pulse"></div>
              ))}
          </div>
       )}
@@ -94,12 +99,13 @@ export default function EventSlider() {
 
       {/* --- EMPTY STATE --- */}
       {!loading && events.length === 0 && (
-        <div className="text-center py-10 bg-white rounded-lg shadow-sm mx-4 md:mx-0">
-          <p className="text-gray-500">Belum ada event tersedia saat ini.</p>
+        // UBAH: Text gray -> Text purple-400 & Border ungu tipis
+        <div className="text-center py-10 bg-white rounded-lg border border-purple-100 mx-4 md:mx-0">
+          <p className="text-purple-400 font-medium">Belum ada event tersedia saat ini.</p>
         </div>
       )}
 
-      {/* Style khusus untuk komponen ini saja */}
+      {/* Style khusus untuk menghilangkan scrollbar default browser */}
       <style jsx>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
