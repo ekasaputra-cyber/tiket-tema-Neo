@@ -21,8 +21,18 @@ export default function ProfileSidebar({ user }) {
       
       {/* User Info Header */}
       <div className="p-6 border-b border-gray-100 flex items-center md:block">
-        <div className="w-14 h-14 bg-[#154D71] text-white rounded-full flex items-center justify-center text-xl font-bold shadow-md shrink-0">
-          {user?.name?.charAt(0).toUpperCase()}
+        <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white/30 overflow-hidden bg-white flex items-center justify-center">
+            {user.photoProfile ? (
+                <img 
+                src={`https://api.artatix.co.id/${user.photoProfile}`} 
+                alt="Profil" 
+                className="w-full h-full object-cover" 
+                />
+            ) : (
+                <span className="text-3xl font-bold text-[#154D71]">
+                {user.name?.charAt(0).toUpperCase()}
+                </span>
+            )}
         </div>
         <div className="ml-4 md:ml-0 md:mt-4">
           <p className="font-bold text-gray-800 truncate">{user?.name || 'User'}</p>
