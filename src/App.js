@@ -9,6 +9,7 @@ import PaymentStatus from './components/payStat';
 import Footer from './components/footer';
 import LoginPage from './pages/loginPages';
 import Home from './pages/home';
+import JelajahPage from './pages/jelajah';
 
 import ProfileLayout from './components/Layout/ProfLay';
 import ProfileSettings from './pages/profile/ProfilSett';
@@ -24,6 +25,7 @@ export default function App() {
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/jelajah/" element={<JelajahPage />} />
           <Route path="/jelajah/:wilayah" element={<ExploreByTerritory />} />
           <Route path="/event/:widgetSlug" element={<EventDetail />} />
           <Route path="/event/:widgetSlug/ticket" element={<TicketSelection />} />
