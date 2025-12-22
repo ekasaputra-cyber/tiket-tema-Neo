@@ -1,3 +1,4 @@
+// src/components/HeroBanner.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
@@ -23,7 +24,7 @@ export default function HeroBanner() {
   const [isTransitioning, setIsTransitioning] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const intervalRef = useRef(null);
-  const TRANSITION_DURATION = 800; // Lebih cepat sedikit agar snappy
+  const TRANSITION_DURATION = 800;
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -61,6 +62,7 @@ export default function HeroBanner() {
 
   useEffect(() => {
     const interval = setInterval(() => nextSlide(), 4000);
+    intervalRef.current = interval;
     return () => clearInterval(interval);
   }, [nextSlide]);
 
@@ -76,6 +78,9 @@ export default function HeroBanner() {
       <div
         className="max-w-7xl mx-auto relative px-4"
         onMouseEnter={() => clearInterval(intervalRef.current)}
+        onMouseLeave={() => {
+            intervalRef.current = setInterval(() => nextSlide(), 4000);
+        }}
       >
         {/* FRAME GAMBAR: Border Tebal + Shadow Keras */}
         <div id="img-carousel" className="overflow-hidden relative border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-sm">
@@ -96,16 +101,17 @@ export default function HeroBanner() {
                   <img
                     src={img.src}
                     alt={img.alt}
-                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer"
+                    // PERUBAHAN DI SINI: Grayscale dihapus
+                    className="w-full h-full object-cover cursor-pointer transition-transform duration-500 hover:scale-105"
                   />
-                  {/* Overlay Pattern Dot (Opsional untuk efek retro) */}
+                  {/* Overlay Pattern Dot (Opsional) */}
                   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dot-noise-light-grey.png')] opacity-20 pointer-events-none"></div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Tombol Previous (KOTAK) */}
+          {/* Tombol Previous */}
           <button
             onClick={prevSlide}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-[#facc15] text-black border-y-4 border-r-4 border-black w-12 h-16 flex items-center justify-center hover:bg-white hover:pl-2 transition-all"
@@ -113,7 +119,7 @@ export default function HeroBanner() {
             <FaChevronLeft size={24} />
           </button>
 
-          {/* Tombol Next (KOTAK) */}
+          {/* Tombol Next */}
           <button
             onClick={nextSlide}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-[#facc15] text-black border-y-4 border-l-4 border-black w-12 h-16 flex items-center justify-center hover:bg-white hover:pr-2 transition-all"
