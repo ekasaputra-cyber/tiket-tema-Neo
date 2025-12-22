@@ -166,7 +166,7 @@ export default function LoginCard() {
               </div>
             </div>
             <button type="submit" disabled={loading} className={`w-full py-4 px-4 font-black text-lg uppercase tracking-wider border-4 border-black shadow-[6px_6px_0px_0px_black] hover:shadow-none hover:translate-x-[6px] hover:translate-y-[6px] transition-all ${loading ? 'bg-gray-300 cursor-not-allowed text-gray-500' : 'bg-[#3b82f6] text-white hover:bg-[#2563eb]'}`}>
-              {loading ? 'SABAR YAK...' : 'KIRIM KODE OTP 🚀'}
+              {loading ? 'SABAR YAK...' : 'Login '}
             </button>
           </form>
         ) : (

@@ -97,7 +97,7 @@ export default function HeroBanner() {
                 className="relative flex-shrink-0 flex items-center justify-center border-r-4 border-black bg-white"
                 style={{ width: `${slideWidth}%` }}
               >
-                <div className="w-full h-56 md:h-[350px] flex items-center justify-center overflow-hidden">
+                <div className="w-full h-56 md:h-[300px] flex items-center justify-center overflow-hidden">
                   <img
                     src={img.src}
                     alt={img.alt}
