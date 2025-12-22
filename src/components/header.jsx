@@ -2,232 +2,135 @@ import React, { useState, useEffect } from 'react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
-  // ✅ PERBAIKAN GLITCH: Cek localStorage langsung di dalam useState (Lazy Initialization)
-  // Ini mencegah tombol "Masuk/Daftar" muncul kedip saat refresh
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return !!localStorage.getItem('auth_token'); 
-  });
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState(null);
 
-  // ✅ AMBIL DATA PROFIL UTK FOTO
-  useEffect(() => {
+  // Fungsi cek status login
+  const checkLoginStatus = async () => {
     const token = localStorage.getItem('auth_token');
-    
+    setIsLoggedIn(!!token); // Ubah jadi boolean true/false
+
     if (token) {
-      // Fetch data profil ringan hanya untuk header
-      const fetchHeaderProfile = async () => {
-        try {
-          const res = await fetch('https://api.artatix.co.id/api/v1/customer/profile', {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          const data = await res.json();
-          if (data.message === 'success') {
-            setProfile(data.data);
-          }
-        } catch (error) {
-          console.error("Gagal memuat profil header", error);
+      try {
+        const res = await fetch('https://api.artatix.co.id/api/v1/customer/profile', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.message === 'success') {
+          setProfile(data.data);
         }
-      };
-      fetchHeaderProfile();
+      } catch (error) {
+        console.error("Gagal memuat profil", error);
+      }
+    } else {
+      setProfile(null);
     }
+  };
+
+  useEffect(() => {
+    // 1. Cek saat pertama load
+    checkLoginStatus();
+
+    // 2. Pasang 'telinga' untuk mendengar teriakan 'auth-update' dari LoginCard
+    const handleAuthUpdate = () => {
+        console.log("Header mendengar login berhasil!"); // Debugging
+        checkLoginStatus();
+    };
+    
+    window.addEventListener('auth-update', handleAuthUpdate);
+
+    // Bersihkan listener saat komponen dicopot
+    return () => window.removeEventListener('auth-update', handleAuthUpdate);
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
     setIsLoggedIn(false);
+    setProfile(null);
     window.location.href = '/masuk';
   };
 
-  // Helper untuk menampilkan foto atau icon default
-  const renderProfileImage = () => {
-    if (profile && profile.photoProfile) {
-      return (
-        <img 
-          src={`https://api.artatix.co.id/${profile.photoProfile}`} 
-          alt="Foto Profil"
-          className="w-8 h-8 rounded-full object-cover border border-gray-200"
-          onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.style.display = 'flex'; }} 
-        />
-      );
-    }
-    return null;
-  };
-
-  const renderDefaultIcon = () => (
-    <div className={`w-8 h-8 rounded-full bg-white text-[#154D71] flex items-center justify-center font-bold ${profile?.photoProfile ? 'hidden' : 'flex'}`}>
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-      </svg>
-    </div>
-  );
-
-  // ... (bagian import dan logic state tetap sama)
-
   return (
     <>
-      {/* === HEADER UTAMA (Sticky) === 
-          UBAH: bg-[#154D71] -> bg-[#6D28D9] (Ungu) 
-      */}
-      <header className="sticky top-0 z-40 w-full bg-[#6D28D9] shadow-lg">
+      <header className="sticky top-0 z-40 w-full bg-[#3b82f6] border-b-4 border-black">
         <div className="container mx-auto px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             
-            {/* BAGIAN KIRI: Logo & Navigasi Desktop */}
+            {/* LOGO */}
             <div className="flex items-center">
-              {/* Logo text tetap putih agar kontras */}
-              <a href="/" className="text-xl font-bold text-white mr-6">belisenang</a>
-              
+              <a href="/" className="text-2xl md:text-3xl font-black text-[#facc15] tracking-tighter mr-8 transition-transform hover:-rotate-2" 
+                 style={{ textShadow: '2px 2px 0px #000', WebkitTextStroke: '1px black' }}>
+                BELISENANG
+              </a>
               <nav className="hidden md:flex space-x-6">
-                {/* UBAH: hover:text-[#FFD600] -> hover:text-[#FFD028] */}
-                <a href="/jelajah" className="text-white font-medium text-lg hover:text-[#FFD028] transition">Jelajah</a>
-                <a href="/tentang" className="text-white font-medium text-lg hover:text-[#FFD028] transition">Tentang</a>
+                <a href="/jelajah" className="text-white font-bold text-lg hover:text-[#facc15] transition-colors shadow-black drop-shadow-md">Jelajah</a>
+                <a href="/tentang" className="text-white font-bold text-lg hover:text-[#facc15] transition-colors shadow-black drop-shadow-md">Tentang</a>
               </nav>
             </div>
 
-            {/* BAGIAN TENGAH: Search Bar */}
+            {/* SEARCH */}
             <div className="hidden md:flex flex-1 mx-4 max-w-lg">
-              {/* UBAH: focus-within:ring-[#FFD600] -> focus-within:ring-[#FFD028] */}
-              <div className="flex items-center w-full bg-white rounded-lg px-3 py-1.5 focus-within:ring-2 focus-within:ring-[#FFD028]">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
-                </svg>
-                <input 
-                  type="text" 
-                  placeholder="Cari event di sini ..." 
-                  className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-400" 
-                />
+              <div className="flex items-center w-full bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus-within:shadow-none focus-within:translate-x-[4px] focus-within:translate-y-[4px] transition-all duration-200">
+                <div className="pl-3 pr-2">🔎</div>
+                <input type="text" placeholder="Cari event seru..." className="w-full bg-transparent py-2 outline-none text-black font-bold placeholder-gray-500 uppercase text-sm" />
               </div>
             </div>
 
-            {/* BAGIAN KANAN: Tombol Aksi & Hamburger */}
+            {/* TOMBOL DESKTOP */}
             <div className="flex items-center gap-3">
-              
-              {/* ✅ LOGIC TOMBOL DESKTOP */}
               <div className="hidden md:flex space-x-3 items-center">
                 {isLoggedIn ? (
-                  // === TAMPILAN JIKA SUDAH LOGIN ===
-                  // UBAH: hover:text-[#FFD600] -> hover:text-[#FFD028]
-                  <a href="/profil" className="flex items-center gap-2 text-white hover:text-[#FFD028] font-medium transition group">
-                    {renderProfileImage()}
-                    {renderDefaultIcon()}
-                    <span className="truncate max-w-[100px]">
-                      {profile ? profile.name?.split(' ')[0] : 'Akun Saya'}
-                    </span>
+                  <a href="/profil" className="bg-[#f472b6] text-black border-2 border-black font-bold px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all flex items-center gap-2">
+                      👤 {profile ? profile.name?.split(' ')[0] : 'Akun'}
                   </a>
                 ) : (
-                  // === TAMPILAN JIKA BELUM LOGIN ===
                   <>
-                    {/* UBAH: bg-[#FFD600] -> bg-[#FFD028] (Kuning Tiket) */}
-                    <a href="/masuk" className="bg-[#FFD028] text-[#6D28D9] font-bold px-6 py-2 rounded-md text-lg hover:bg-white hover:text-[#6D28D9] transition shadow-md">
-                      Masuk
-                    </a>
-                    {/* UBAH: Border & Text menyesuaikan tema */}
-                    <a href="/daftar" className="border-2 border-[#FFD028] text-[#FFD028] font-bold px-6 py-2 rounded-md text-lg hover:bg-[#FFD028] hover:text-[#6D28D9] transition">
-                      Daftar
-                    </a>
+                    <a href="/masuk" className="bg-[#ef4444] text-white border-2 border-black font-bold px-6 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all">MASUK</a>
+                    <a href="/daftar" className="bg-[#facc15] text-black border-2 border-black font-bold px-6 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all">DAFTAR</a>
                   </>
                 )}
               </div>
-
-              {/* Tombol Hamburger */}
-              <button
-                className="md:hidden text-white focus:outline-none p-1"
-                onClick={() => setIsMenuOpen(true)}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+              <button className="md:hidden text-white bg-black border-2 border-white p-2 shadow-[3px_3px_0px_0px_#facc15]" onClick={() => setIsMenuOpen(true)}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 6h16M4 12h16M4 18h16" /></svg>
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* === MOBILE SIDEBAR MENU === */}
-      <div 
-        className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 md:hidden ${
-          isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
-        }`}
-        onClick={() => setIsMenuOpen(false)}
-      ></div>
-
-      <div 
-        className={`fixed top-0 right-0 h-full w-[80%] max-w-[300px] bg-white z-[60] shadow-2xl transform transition-transform duration-300 ease-in-out md:hidden ${
-          isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="p-5 flex flex-col h-full">
-          
-          <div className="flex items-center justify-between mb-8 border-b pb-4">
-            {/* UBAH: text-[#154D71] -> text-[#6D28D9] */}
-            <span className="text-xl font-bold text-[#6D28D9]">BeliSenang</span>
-            <button 
-              onClick={() => setIsMenuOpen(false)}
-              className="text-gray-500 hover:text-[#EC4899] transition" // Hover jadi Pink
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="mb-6">
-            {/* UBAH: focus-within:ring-[#154D71] -> focus-within:ring-[#6D28D9] */}
-            <div className="flex items-center w-full bg-gray-100 rounded-lg px-3 py-3 border focus-within:ring-2 focus-within:ring-[#6D28D9]">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
-              </svg>
-              <input type="text" placeholder="Cari event..." className="w-full bg-transparent outline-none text-gray-700" />
+      {/* MOBILE MENU */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-black/80" onClick={() => setIsMenuOpen(false)}></div>
+          <div className="relative w-[80%] max-w-[300px] bg-[#fef3c7] h-full border-l-4 border-black shadow-[-10px_0_20px_rgba(0,0,0,0.5)] p-6 flex flex-col">
+            <div className="flex justify-between items-center mb-8 border-b-4 border-black pb-4">
+              <span className="text-2xl font-black text-black">MENU</span>
+              <button onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold hover:text-red-600">✕</button>
+            </div>
+            <nav className="flex flex-col space-y-4">
+               <a href="/" className="text-xl font-bold border-2 border-black bg-white p-3 shadow-[4px_4px_0px_0px_black] text-center">BERANDA</a>
+               <a href="/event" className="text-xl font-bold border-2 border-black bg-[#a855f7] text-white p-3 shadow-[4px_4px_0px_0px_black] text-center">EVENT</a>
+            </nav>
+            <div className="mt-auto space-y-3">
+                {isLoggedIn ? (
+                    <>
+                      {/* --- DISINI PERBAIKAN CSS-NYA --- */}
+                      {/* HAPUS 'block', biarkan 'flex' */}
+                      <a href="/profil" className="w-full bg-[#f472b6] text-black border-2 border-black font-bold p-3 shadow-[4px_4px_0px_0px_black] flex items-center justify-center gap-2">
+                        👤 {profile ? `Halo, ${profile.name.split(' ')[0]}` : 'Akun Saya'}
+                      </a>
+                      <button onClick={handleLogout} className="w-full bg-[#ef4444] text-white border-2 border-black font-bold p-3 shadow-[4px_4px_0px_0px_black]">KELUAR</button>
+                    </>
+                ) : (
+                    <>
+                    <a href="/masuk" className="block text-center w-full bg-[#3b82f6] text-white border-2 border-black font-bold p-3 shadow-[4px_4px_0px_0px_black]">MASUK</a>
+                    <a href="/daftar" className="block text-center w-full bg-[#facc15] text-black border-2 border-black font-bold p-3 shadow-[4px_4px_0px_0px_black]">DAFTAR</a>
+                    </>
+                )}
             </div>
           </div>
-
-          <nav className="flex flex-col space-y-4 mb-8">
-            {/* UBAH: hover:text-[#154D71] -> hover:text-[#6D28D9] */}
-            <a href="/" className="text-gray-700 font-medium text-lg hover:text-[#6D28D9]">Beranda</a>
-            <a href="/event" className="text-gray-700 font-medium text-lg hover:text-[#6D28D9]">Event</a>
-            <a href="/tentang" className="text-gray-700 font-medium text-lg hover:text-[#6D28D9]">Tentang</a>
-          </nav>
-
-          {/* ✅ LOGIC TOMBOL MOBILE */}
-          <div className="mt-auto flex flex-col space-y-3">
-            {isLoggedIn ? (
-               <>
-                {/* UBAH: bg-[#154D71] -> bg-[#6D28D9] */}
-                <a href="/profil" className="bg-[#6D28D9] text-white text-center font-semibold px-6 py-3 rounded-xl hover:bg-[#5b21b6] transition flex items-center justify-center gap-2">
-                  {profile && profile.photoProfile ? (
-                     <img 
-                       src={`https://api.artatix.co.id/${profile.photoProfile}`} 
-                       alt="Profil"
-                       className="w-6 h-6 rounded-full object-cover border border-white"
-                     />
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                  {profile ? `Halo, ${profile.name.split(' ')[0]}` : 'Akun Saya'}
-                </a>
-                <button onClick={handleLogout} className="border-2 border-red-500 text-red-500 text-center font-semibold px-6 py-3 rounded-xl hover:bg-red-50 transition">
-                  Keluar
-                </button>
-               </>
-            ) : (
-               <>
-                {/* UBAH: bg-[#154D71] -> bg-[#6D28D9] */}
-                <a href="/masuk" className="bg-[#6D28D9] text-white text-center font-semibold px-6 py-3 rounded-xl hover:bg-[#5b21b6] transition">
-                  Masuk
-                </a>
-                {/* UBAH: border-[#154D71] text-[#154D71] -> border-[#6D28D9] text-[#6D28D9] */}
-                <a href="/daftar" className="border-2 border-[#6D28D9] text-[#6D28D9] text-center font-semibold px-6 py-3 rounded-xl hover:bg-purple-50 transition">
-                  Daftar
-                </a>
-               </>
-            )}
-          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

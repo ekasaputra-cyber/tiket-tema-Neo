@@ -32,7 +32,7 @@ export default function HomeCard({ title, date, location, imageUrl, lowestPrice,
   return (
     <Link
       to={isClickable ? `/event/${slug}` : '#'}
-      className={`block h-full transition-all duration-300 rounded-xl overflow-hidden shadow-md hover:shadow-xl group ${
+      className={`block h-full transition-all duration-300 overflow-hidden shadow-md hover:shadow-xl group ${
         isExpired ? 'cursor-not-allowed opacity-75 grayscale' : 'cursor-pointer bg-white'
       }`}
       onClick={(e) => !isClickable && e.preventDefault()}

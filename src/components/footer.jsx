@@ -4,63 +4,63 @@ import { FaInstagram, FaTwitter, FaYoutube, FaFacebookF } from 'react-icons/fa';
 
 export default function Footer() {
   const socialLinks = [
-    { icon: <FaInstagram />, href: "https://instagram.com", label: "Instagram" },
-    { icon: <FaTwitter />, href: "https://twitter.com", label: "Twitter" },
-    { icon: <FaYoutube />, href: "https://youtube.com", label: "Youtube" },
-    { icon: <FaFacebookF />, href: "https://facebook.com", label: "Facebook" },
+    { icon: <FaInstagram />, href: "https://instagram.com", label: "Instagram", color: "bg-[#f472b6]" }, // Pink
+    { icon: <FaTwitter />, href: "https://twitter.com", label: "Twitter", color: "bg-[#3b82f6]" }, // Biru
+    { icon: <FaYoutube />, href: "https://youtube.com", label: "Youtube", color: "bg-[#ef4444]" }, // Merah
+    { icon: <FaFacebookF />, href: "https://facebook.com", label: "Facebook", color: "bg-[#1d4ed8]" }, // Biru Tua
   ];
 
   return (
-    // UBAH: bg-[#0e3b6b] -> bg-[#4C1D95] (Ungu Gelap)
-    <footer className="bg-[#4C1D95] text-white pt-16 pb-8 px-4 mt-16 font-sans border-t-4 border-[#FFD028]">
-      <div className="max-w-6xl mx-auto">
+    <footer className="bg-black text-white pt-16 pb-8 border-t-8 border-[#facc15] mt-16 font-mono">
+      <div className="max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8 mb-12">
           
           <div className="space-y-4">
-             <div className="flex items-center gap-3">
-              {/* Tambah aksen warna pada logo */}
-              <h2 className="text-2xl font-bold tracking-wide text-white">
-                beli<span className="text-[#FFD028]">senang</span>
+             <div className="flex items-center gap-2">
+              <h2 className="text-3xl font-black tracking-tighter text-white bg-[#ef4444] px-2 py-1 transform -rotate-2 border-2 border-white">
+                BELISENANG
               </h2>
             </div>
-            <p className="text-slate-200 text-sm leading-relaxed pr-4">
-              Platform tiket konser dan event musik terbesar di Indonesia. Temukan pengalaman musik yang tak terlupakan.
+            <p className="text-gray-300 text-sm leading-relaxed pr-4 font-bold">
+              Platform tiket konser paling seru, paling berwarna, dan paling gampang di Indonesia!
             </p>
           </div>
 
           <div>
-            <h5 className="font-bold text-lg mb-4 text-[#FFD028]">Event</h5>
-            <ul className="space-y-3 text-slate-200 text-sm">
-              {/* UBAH: hover:text-yellow-400 -> hover:text-[#EC4899] (Pink) agar lebih variatif */}
-              <li><Link to="/konser" className="hover:text-[#EC4899] hover:translate-x-1 transition-all inline-block">Konser Musik</Link></li>
-              <li><Link to="/festival" className="hover:text-[#EC4899] hover:translate-x-1 transition-all inline-block">Festival</Link></li>
-              <li><Link to="/standup" className="hover:text-[#EC4899] hover:translate-x-1 transition-all inline-block">Stand-up Comedy</Link></li>
-              <li><Link to="/teater" className="hover:text-[#EC4899] hover:translate-x-1 transition-all inline-block">Teater & Drama</Link></li>
+            <h5 className="font-black text-xl mb-6 text-[#facc15] uppercase border-b-2 border-[#facc15] inline-block">Event Seru</h5>
+            <ul className="space-y-3 font-bold text-sm">
+              <li><Link to="/konser" className="hover:text-[#f472b6] hover:translate-x-2 transition-all inline-block">► MUSIK</Link></li>
+              <li><Link to="/festival" className="hover:text-[#f472b6] hover:translate-x-2 transition-all inline-block">► FESTIVAL</Link></li>
+              <li><Link to="/standup" className="hover:text-[#f472b6] hover:translate-x-2 transition-all inline-block">► COMEDY</Link></li>
+              <li><Link to="/teater" className="hover:text-[#f472b6] hover:translate-x-2 transition-all inline-block">► SENI</Link></li>
             </ul>
           </div>
 
           <div>
-            <h5 className="font-bold text-lg mb-4 text-[#FFD028]">Bantuan</h5>
-            <ul className="space-y-3 text-slate-200 text-sm">
-              <li><Link to="/faq" className="hover:text-[#EC4899] hover:translate-x-1 transition-all inline-block">FAQ</Link></li>
-              <li><Link to="/kontak" className="hover:text-[#EC4899] hover:translate-x-1 transition-all inline-block">Hubungi Kami</Link></li>
-              <li><Link to="/privasi" className="hover:text-[#EC4899] hover:translate-x-1 transition-all inline-block">Kebijakan Privasi</Link></li>
-              <li><Link to="/syarat" className="hover:text-[#EC4899] hover:translate-x-1 transition-all inline-block">Syarat & Ketentuan</Link></li>
+             <h5 className="font-black text-xl mb-6 text-[#10b981] uppercase border-b-2 border-[#10b981] inline-block">Bantuan</h5>
+            <ul className="space-y-3 font-bold text-sm">
+              <li><Link to="/faq" className="hover:text-[#10b981] hover:translate-x-2 transition-all inline-block">► FAQ</Link></li>
+              <li><Link to="/kontak" className="hover:text-[#10b981] hover:translate-x-2 transition-all inline-block">► Kontak</Link></li>
+              <li><Link to="/privasi" className="hover:text-[#10b981] hover:translate-x-2 transition-all inline-block">► Privasi</Link></li>
+              <li><Link to="/syarat" className="hover:text-[#10b981] hover:translate-x-2 transition-all inline-block">► Syarat</Link></li>
             </ul>
           </div>
 
-          {/* Ikuti Kami */}
+          {/* Social Media Blocks */}
           <div>
-            <h5 className="font-bold text-lg mb-4 text-[#FFD028]">Ikuti Kami</h5>
-            <div className="flex gap-3">
+             <h5 className="font-black text-xl mb-6 text-[#3b82f6] uppercase border-b-2 border-[#3b82f6] inline-block">Ikuti Kami</h5>
+            <div className="flex gap-4">
               {socialLinks.map((social, index) => (
                 <a 
                   key={index} 
                   href={social.href} 
                   target="_blank" 
                   rel="noreferrer"
-                  // UBAH: hover:bg-yellow-400 -> hover:bg-[#FFD028], hover:text-[#0e3b6b] -> hover:text-[#4C1D95]
-                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white hover:bg-[#FFD028] hover:text-[#4C1D95] transition-all duration-300 hover:-translate-y-1"
+                  className={`w-12 h-12 flex items-center justify-center text-black border-2 border-white 
+                    ${social.color} 
+                    shadow-[4px_4px_0px_0px_white] 
+                    hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] 
+                    transition-all`}
                   aria-label={social.label}
                 >
                   {social.icon}
@@ -70,9 +70,9 @@ export default function Footer() {
           </div>
         </div>
 
-         <div className="pt-8 border-t border-purple-800 text-center">
-          <p className="text-purple-200 text-sm">
-            © {new Date().getFullYear()} belisenang. All rights reserved.
+         <div className="pt-8 border-t-2 border-gray-800 text-center">
+          <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">
+            © {new Date().getFullYear()} Belisenang Corp. Let's Party!
           </p>
         </div>
       </div>

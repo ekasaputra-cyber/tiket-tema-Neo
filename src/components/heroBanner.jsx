@@ -23,7 +23,7 @@ export default function HeroBanner() {
   const [isTransitioning, setIsTransitioning] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const intervalRef = useRef(null);
-  const TRANSITION_DURATION = 1000;
+  const TRANSITION_DURATION = 800; // Lebih cepat sedikit agar snappy
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -60,87 +60,79 @@ export default function HeroBanner() {
   }, [currentIndex, images.length]);
 
   useEffect(() => {
-    const interval = setInterval(() => nextSlide(), 3000);
+    const interval = setInterval(() => nextSlide(), 4000);
     return () => clearInterval(interval);
   }, [nextSlide]);
 
   const realIndex = (currentIndex - 2 + originalImages.length) % originalImages.length;
-
   const handleDotClick = (index) => {
     setIsTransitioning(true);
     setCurrentIndex(index + 2);
   };
 
   return (
-    <section className="bg-[#F5F3FF] py-4 md:py-8 my-5 pt-20">
+    // Background Cream/Kuning Pucat dengan Border Atas Bawah
+    <section className="bg-[#fffbeb] py-10 border-b-4 border-black">
       <div
-        className="max-w-7xl mx-auto relative"
+        className="max-w-7xl mx-auto relative px-4"
         onMouseEnter={() => clearInterval(intervalRef.current)}
       >
-        <div id="img-carousel" className="overflow-hidden px-0 md:px-4 relative group">
+        {/* FRAME GAMBAR: Border Tebal + Shadow Keras */}
+        <div id="img-carousel" className="overflow-hidden relative border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-sm">
           <div
             className="flex"
             style={{
               transform: `translateX(-${currentIndex * slideWidth}%)`,
-              transition: isTransitioning ? `transform ${TRANSITION_DURATION}ms ease-in-out` : 'none',
+              transition: isTransitioning ? `transform ${TRANSITION_DURATION}ms cubic-bezier(0.25, 1, 0.5, 1)` : 'none',
             }}
           >
             {images.map((img, idx) => (
               <div
                 key={idx}
-                className="relative flex-shrink-0 px-2 flex items-center justify-center"
+                className="relative flex-shrink-0 flex items-center justify-center border-r-4 border-black bg-white"
                 style={{ width: `${slideWidth}%` }}
               >
-                {/* UBAH: bg-gray-50 -> bg-white (Agar gambar lebih kontras & bersih) */}
-                <div className="w-full h-56 md:h-72 bg-white rounded-xl md:rounded-2xl flex items-center justify-center overflow-hidden shadow-sm border border-purple-100">
+                <div className="w-full h-56 md:h-[350px] flex items-center justify-center overflow-hidden">
                   <img
                     src={img.src}
                     alt={img.alt}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500 cursor-pointer"
                   />
+                  {/* Overlay Pattern Dot (Opsional untuk efek retro) */}
+                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dot-noise-light-grey.png')] opacity-20 pointer-events-none"></div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Tombol Previous */}
+          {/* Tombol Previous (KOTAK) */}
           <button
             onClick={prevSlide}
-            // UBAH: text-[#1C6EA4] -> text-[#6D28D9] (Ungu)
-            // UBAH: hover:bg-white -> hover:bg-[#FFD028] (Kuning Tiket)
-            className="absolute left-2 md:left-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 text-[#6D28D9] rounded-full shadow-lg hover:bg-[#FFD028] hover:text-[#6D28D9] flex items-center justify-center border border-purple-100 backdrop-blur-sm transition-all"
-            style={{ width: isMobile ? 36 : 48, height: isMobile ? 36 : 48 }}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-[#facc15] text-black border-y-4 border-r-4 border-black w-12 h-16 flex items-center justify-center hover:bg-white hover:pl-2 transition-all"
           >
-            <FaChevronLeft size={isMobile ? 16 : 24} />
+            <FaChevronLeft size={24} />
           </button>
 
-          {/* Tombol Next */}
+          {/* Tombol Next (KOTAK) */}
           <button
             onClick={nextSlide}
-            // UBAH: text-[#1C6EA4] -> text-[#6D28D9] (Ungu)
-            // UBAH: hover:bg-white -> hover:bg-[#FFD028] (Kuning Tiket)
-            className="absolute right-2 md:right-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 text-[#6D28D9] rounded-full shadow-lg hover:bg-[#FFD028] hover:text-[#6D28D9] flex items-center justify-center border border-purple-100 backdrop-blur-sm transition-all"
-            style={{ width: isMobile ? 36 : 48, height: isMobile ? 36 : 48 }}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-[#facc15] text-black border-y-4 border-l-4 border-black w-12 h-16 flex items-center justify-center hover:bg-white hover:pr-2 transition-all"
           >
-            <FaChevronRight size={isMobile ? 16 : 24} />
+            <FaChevronRight size={24} />
           </button>
         </div>
 
-        {/* --- DOTS INDICATORS --- */}
-        <div className="flex justify-center items-center gap-2 mt-4 md:mt-6">
+        {/* DOTS: Kotak-kotak Retro */}
+        <div className="flex justify-center items-center gap-4 mt-8">
           {originalImages.map((_, idx) => (
             <button
               key={idx}
               onClick={() => handleDotClick(idx)}
-              // UBAH LOGIC WARNA:
-              // Aktif: bg-[#6D28D9] (Ungu Utama)
-              // Tidak Aktif: bg-purple-200 hover:bg-[#EC4899] (Pink saat hover)
-              className={`h-2 rounded-full transition-all duration-500 ease-in-out ${
+              className={`h-4 w-4 border-2 border-black transition-all duration-200 ${
                 realIndex === idx 
-                  ? 'w-8 bg-[#6D28D9]' 
-                  : 'w-2 bg-purple-200 hover:bg-[#EC4899]'
+                  ? 'bg-[#ef4444] translate-y-[-4px] shadow-[2px_2px_0px_0px_black]' 
+                  : 'bg-white hover:bg-gray-200'
               }`}
-              aria-label={`Go to slide ${idx + 1}`}
             />
           ))}
         </div>
