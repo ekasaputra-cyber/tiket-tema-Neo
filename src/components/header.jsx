@@ -109,7 +109,8 @@ export default function Header() {
             </div>
             <nav className="flex flex-col space-y-4">
                <a href="/" className="text-xl font-bold border-2 border-black bg-white p-3 shadow-[4px_4px_0px_0px_black] text-center">BERANDA</a>
-               <a href="/event" className="text-xl font-bold border-2 border-black bg-[#a855f7] text-white p-3 shadow-[4px_4px_0px_0px_black] text-center">EVENT</a>
+               <a href="/jelajah" className="text-xl font-bold border-2 border-black bg-[#a855f7] text-white p-3 shadow-[4px_4px_0px_0px_black] text-center">JELAJAH</a>
+               <a href="/tentang" className="text-xl font-bold border-2 border-black bg-[#10b981] text-white p-3 shadow-[4px_4px_0px_0px_black] text-center">TENTANG</a>
             </nav>
             <div className="mt-auto space-y-3">
                 {isLoggedIn ? (

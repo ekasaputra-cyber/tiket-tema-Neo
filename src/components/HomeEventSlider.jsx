@@ -25,9 +25,44 @@ export default function EventSlider() {
     fetchEvents();
   }, []);
 
-  const formatDateIndo = (dateStr) => {
-    if (!dateStr) return '-';
-    return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  // --- LOGIKA BARU PEMFORMATAN TANGGAL (SUDAH DIBERSIHKAN) ---
+  const formatEventDate = (startStr, endStr) => {
+    if (!startStr) return '-';
+
+    const startDate = new Date(startStr);
+    const endDate = endStr ? new Date(endStr) : null;
+    
+    // Opsi format bahasa Indonesia
+    const optionsFull = { day: 'numeric', month: 'long', year: 'numeric' };
+    
+    // HAPUS: const optionsMonth... (Tidak dipakai)
+
+    // Jika tidak ada end date, atau start == end
+    if (!endDate || startDate.toDateString() === endDate.toDateString()) {
+      return startDate.toLocaleDateString('id-ID', optionsFull);
+    }
+
+    const startYear = startDate.getFullYear();
+    const endYear = endDate.getFullYear();
+    const startMonth = startDate.getMonth();
+    const endMonth = endDate.getMonth();
+    const startDay = startDate.getDate();
+    
+    // HAPUS: const endDay... (Tidak dipakai)
+
+    // Skenario 1: Beda Tahun (31 Des 2023 - 01 Jan 2024)
+    if (startYear !== endYear) {
+      return `${startDate.toLocaleDateString('id-ID', optionsFull)} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
+    }
+    
+    // Skenario 2: Sama Tahun, Beda Bulan (31 Jan - 02 Feb 2024)
+    if (startMonth !== endMonth) {
+      const startDayMonth = startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
+      return `${startDayMonth} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
+    }
+
+    // Skenario 3: Sama Tahun, Sama Bulan (01 - 03 Januari 2024)
+    return `${startDay} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
   };
 
   return (
@@ -48,7 +83,7 @@ export default function EventSlider() {
         </Link>
       </div>
 
-      {/* --- LOADING STATE (Skeleton Kotak Hitam) --- */}
+      {/* --- LOADING STATE --- */}
       {loading && (
          <div className="flex space-x-4 overflow-hidden">
              {[1, 2, 3].map((n) => (
@@ -64,12 +99,11 @@ export default function EventSlider() {
         <div className="flex overflow-x-auto pb-6 gap-6 scrollbar-hide snap-x">
           {events.map((item, index) => (
             <div key={`${item.id}-${index}`} className="min-w-[280px] md:min-w-[320px] snap-center transform hover:-translate-y-2 transition-transform duration-300">
-              {/* Note: Pastikan HomeCard juga punya border-black dan hard shadow agar match */}
               <div className="border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-white h-full mt-2">
                   <HomeCard
                     title={item.name}
                     slug={item.slug}
-                    date={formatDateIndo(item.dateStart)}
+                    date={formatEventDate(item.dateStart, item.dateEnd)}
                     imageUrl={item.image ? `${STORAGE_URL}${item.image}` : null}
                     lowestPrice={item.lowestPrice}
                     location={item.city || item.province || item.location}

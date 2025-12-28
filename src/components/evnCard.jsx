@@ -39,7 +39,7 @@ export default function EventCard({
       to={`/event/${slug}`}
       onClick={handleClick}
       className={`group block relative w-full h-full transition-all duration-200
-        border-2 border-black rounded-lg overflow-hidden
+        border-2 border-black overflow-hidden
         ${isExpired 
           ? 'bg-gray-100 opacity-80 cursor-not-allowed grayscale' 
           : 'bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] cursor-pointer'

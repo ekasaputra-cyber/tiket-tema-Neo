@@ -295,25 +295,26 @@ export default function EventDetail() {
             </div>
 
             {/* Fasilitas Venue (DINAMIS) */}
-            {event.eventFacilities && (
+            {event.eventFacilities && 
+             Object.entries(event.eventFacilities).some(([key, value]) => value === 1 && facilityMapping[key]) && (
               <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_black] p-6 md:p-8">
                   <h2 className="text-2xl font-black text-black mb-6 uppercase border-b-4 border-black pb-2">
-                  Fasilitas Venue
+                    Fasilitas Venue
                   </h2>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {Object.entries(event.eventFacilities).map(([key, value]) => {
-                      const facility = facilityMapping[key];
-                      // Hanya render jika value == 1 dan ada di mapping
-                      if (value === 1 && facility) {
-                      return (
-                          <div key={key} className="flex flex-col items-center justify-center p-4 border-2 border-black bg-gray-50 hover:bg-[#facc15] transition-colors group">
-                          <facility.icon className="text-3xl mb-2 group-hover:scale-110 transition-transform" />
-                          <span className="font-bold text-xs md:text-sm uppercase text-center">{facility.label}</span>
-                          </div>
-                      );
-                      }
-                      return null;
-                  })}
+                    {Object.entries(event.eventFacilities).map(([key, value]) => {
+                        const facility = facilityMapping[key];
+                        // Render item
+                        if (value === 1 && facility) {
+                          return (
+                              <div key={key} className="flex flex-col items-center justify-center p-4 border-2 border-black bg-gray-50 hover:bg-[#facc15] transition-colors group">
+                                <facility.icon className="text-3xl mb-2 group-hover:scale-110 transition-transform" />
+                                <span className="font-bold text-xs md:text-sm uppercase text-center">{facility.label}</span>
+                              </div>
+                          );
+                        }
+                        return null;
+                    })}
                   </div>
               </div>
             )}

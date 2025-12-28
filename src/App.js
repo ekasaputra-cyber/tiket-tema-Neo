@@ -10,6 +10,8 @@ import Footer from './components/footer';
 import LoginPage from './pages/loginPages';
 import Home from './pages/home';
 import JelajahPage from './pages/jelajah';
+import FAQPage from './pages/faq';
+import AboutPage from './pages/tentang';
 
 import ProfileLayout from './components/Layout/ProfLay';
 import ProfileSettings from './pages/profile/ProfilSett';
@@ -30,6 +32,10 @@ export default function App() {
           <Route path="/event/:widgetSlug" element={<EventDetail />} />
           <Route path="/event/:widgetSlug/ticket" element={<TicketSelection />} />
           <Route path="/payment/:orderId" element={<PaymentStatus />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/tentang" element={<AboutPage />} />
+
+
           <Route path="/masuk" element={<LoginPage />} />
           <Route path="/daftar" element={<LoginPage />} />
 

@@ -64,19 +64,41 @@ export default function ExploreEvents() {
 
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
         
-        {/* HEADER SECTION */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-6xl font-black text-black uppercase tracking-tighter mb-4" 
-              style={{ textShadow: '4px 4px 0px #000' }}>
-            JELAJAH <span className="text-[#3b82f6] bg-black px-2">SERU</span>
-          </h2>
-          <p className="font-bold text-gray-600 text-lg max-w-2xl mx-auto border-2 border-black p-2 bg-white shadow-[4px_4px_0px_0px_black] transform -rotate-1">
-            Temukan event musik, festival, dan hiburan paling hits di kotamu!
-          </p>
-        </div>
+{/* OPSI 1: OUTLINE & BLOCK */}
+<div className="text-center mb-16 relative">
+  <div className="relative inline-block">
+    {/* Background Pattern Dotted (Hiasan) */}
+    <div className="absolute -top-4 -left-4 w-full h-full bg-[radial-gradient(#000_2px,transparent_2px)] [background-size:8px_8px] opacity-20 transform -rotate-3"></div>
+    
+    <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none relative z-10">
+      {/* JELAJAH: Putih dengan Stroke Hitam */}
+      <span 
+        className="text-white relative z-10 mr-2"
+        style={{ 
+          WebkitTextStroke: '3px black', // Garis tepi tebal
+          textShadow: '4px 4px 0px #facc15' // Bayangan kuning
+        }}
+      >
+        JELAJAH
+      </span>
+      
+      {/* SERU: Blok Hitam Miring */}
+      <span className="inline-block transform rotate-6 bg-black text-[#facc15] px-4 py-1 border-b-4 border-r-4 border-gray-400 hover:rotate-0 transition-transform cursor-default">
+        SERU!
+      </span>
+    </h2>
+  </div>
+
+  {/* Tagline: Style Sticker */}
+  <div className="mt-6 flex justify-center">
+    <p className="font-bold text-black text-sm md:text-lg bg-white border-2 border-black px-6 py-2 rounded-full shadow-[4px_4px_0px_0px_#ef4444] transform hover:-translate-y-1 transition-transform">
+      Temukan event musik, festival, dan hiburan paling hits di kotamu!
+    </p>
+  </div>
+</div>
 
         {/* GRID EVENT - MENGGUNAKAN EVENT CARD */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 px-4 md:px-0">
           {events.map((item, index) => (
             <EventCard
               key={`${item.id}-${index}`}
