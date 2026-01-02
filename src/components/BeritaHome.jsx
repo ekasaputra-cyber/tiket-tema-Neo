@@ -6,27 +6,30 @@ import { FaArrowRight, FaCalendarAlt } from 'react-icons/fa';
 const newsData = [
   {
     id: 1,
-    title: "Lineup Fase 1 Pestapora Sudah Rilis! Siapa Jagoanmu?",
-    date: "20 Des 2024",
-    category: "UPDATE",
-    image: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=800&auto=format&fit=crop", 
-    color: "bg-[#facc15]" // Kuning
+    title: "RESMI: BeliSenang.com Jadi Exclusive Ticketing Partner Konser Reuni 2026!",
+    date: "02 Jan 2026",
+    category: "BIG NEWS",
+    image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=800&auto=format&fit=crop", 
+    color: "bg-[#facc15]",
+    isFeatured: true // Berita utama lebih besar
   },
   {
     id: 2,
-    title: "Tips Nonton Konser Biar Gak Dehidrasi & Tetap Slay",
-    date: "18 Des 2024",
-    category: "TIPS & TRICK",
-    image: "https://images.unsplash.com/photo-1533174072545-e8d4aa97edf9?q=80&w=800&auto=format&fit=crop",
-    color: "bg-[#f472b6]" // Pink
+    title: "Tips War Tiket Tanpa Galau di Aplikasi BeliSenang",
+    date: "01 Jan 2026",
+    category: "GUIDE",
+    image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=800&auto=format&fit=crop",
+    color: "bg-[#4ade80]",
+    isFeatured: false
   },
   {
     id: 3,
-    title: "Cara Refund Tiket Jika Event Batal (Mudah & Cepat)",
-    date: "15 Des 2024",
-    category: "PANDUAN",
-    image: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?q=80&w=800&auto=format&fit=crop",
-    color: "bg-[#3b82f6]" // Biru
+    title: "Fitur 'Senang-Pay' Rilis! Bayar Tiket Bisa Dicicil 0%",
+    date: "28 Des 2025",
+    category: "PRODUCT",
+    image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=800&auto=format&fit=crop",
+    color: "bg-[#3b82f6]",
+    isFeatured: false
   }
 ];
 

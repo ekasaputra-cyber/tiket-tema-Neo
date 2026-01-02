@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  FaHistory, 
-  FaCalendarAlt, 
-  FaHashtag, 
-  FaSpinner, 
-  FaExclamationCircle,
-  FaSearch
-} from 'react-icons/fa';
+  HiClock, 
+  HiCalendarDays, 
+  HiHashtag, 
+  HiArrowPath,
+  HiMagnifyingGlass,
+  HiChevronRight,
+  HiCreditCard
+} from 'react-icons/hi2';
 
 export default function TransactionHistory() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
-  // State untuk Filter Aktif (Default: 'all')
   const [activeFilter, setActiveFilter] = useState('all');
 
   const navigate = useNavigate();
@@ -37,7 +36,6 @@ export default function TransactionHistory() {
         });
 
         if (!res.ok) throw new Error('Gagal memuat riwayat transaksi');
-
         const json = await res.json();
         
         if (json.message === 'success') {
@@ -45,7 +43,6 @@ export default function TransactionHistory() {
         } else {
           setTransactions([]);
         }
-
       } catch (err) {
         console.error('Error:', err);
         setError('Terjadi kesalahan saat memuat data.');
@@ -57,159 +54,149 @@ export default function TransactionHistory() {
     fetchTransactions();
   }, [navigate]);
 
-  // === LOGIKA FILTER ===
   const getFilteredTransactions = () => {
     if (activeFilter === 'all') return transactions;
-
     return transactions.filter((trx) => {
       const status = trx.status.toLowerCase();
-
-      if (activeFilter === 'success') {
-        // Kategori "Dibayar"
-        return status === 'success' || status === 'paid';
-      } 
-      
-      if (activeFilter === 'pending') {
-        // Kategori "Belum Dibayar"
-        return status === 'pending' || status === 'waiting_payment';
-      } 
-      
-      if (activeFilter === 'failed') {
-        // Kategori "Dibatalkan" (Gagal / Kadaluarsa / Batal)
-        return status === 'failed' || status === 'expired' || status === 'cancelled';
-      }
-
+      if (activeFilter === 'success') return status === 'success' || status === 'paid';
+      if (activeFilter === 'pending') return status === 'pending' || status === 'waiting_payment';
+      if (activeFilter === 'failed') return status === 'failed' || status === 'expired' || status === 'cancelled';
       return false;
     });
   };
 
   const filteredData = getFilteredTransactions();
 
-  // Opsi Filter untuk UI
   const filterTabs = [
-    { id: 'all', label: 'Semua' },
-    { id: 'success', label: 'Dibayar' },
-    { id: 'pending', label: 'Belum Dibayar' },
-    { id: 'failed', label: 'Dibatalkan' },
+    { id: 'all', label: 'SEMUA' },
+    { id: 'success', label: 'DIBAYAR' },
+    { id: 'pending', label: 'PENDING' },
+    { id: 'failed', label: 'BATAL' },
   ];
 
-  // Helper Formatter
   const formatRupiah = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
   
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('id-ID', { 
-      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+      day: 'numeric', month: 'short', year: 'numeric'
     });
   };
 
-  const getStatusColor = (status) => {
+  const getStatusBadge = (status) => {
     switch (status.toLowerCase()) {
-      case 'success': case 'paid': return 'bg-green-100 text-green-700 border-green-200';
-      case 'pending': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'failed': case 'expired': case 'cancelled': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'success': case 'paid': return { color: 'bg-[#4ade80]', label: 'DIBAYAR' };
+      case 'pending': case 'waiting_payment': return { color: 'bg-[#facc15]', label: 'PENDING' };
+      case 'failed': case 'expired': case 'cancelled': return { color: 'bg-[#ef4444]', label: 'GAGAL' };
+      default: return { color: 'bg-gray-300', label: status.toUpperCase() };
     }
   };
 
-  // === RENDER LOADING & ERROR ===
-  if (loading) return <div className="flex justify-center p-10"><FaSpinner className="animate-spin text-2xl text-[#154D71]" /></div>;
-  if (error) return <div className="text-center p-10 text-red-500">{error}</div>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center p-20">
+      <HiArrowPath className="animate-spin text-4xl text-[#3b82f6] stroke-2" />
+      <p className="font-black mt-4 uppercase text-[10px] tracking-widest italic opacity-50">Narik Data...</p>
+    </div>
+  );
 
   return (
-    <>
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-[#154D71]">Riwayat Transaksi</h1>
-        <p className="text-gray-500 text-sm md:text-base mt-1">Daftar semua pembelian tiket Anda</p>
+    <div className="max-w-5xl mx-auto px-1 md:px-0">
+      {/* HEADER - Disesuaikan ukuran mobile */}
+      <div className="mb-8 relative">
+        <h1 className="text-3xl md:text-5xl font-black text-black uppercase tracking-tighter italic leading-none">
+          Riwayat <span className="text-[#3b82f6] drop-shadow-[2px_2px_0px_black] md:drop-shadow-[3px_3px_0px_black]">Transaksi</span>
+        </h1>
+        <p className="text-gray-600 font-bold text-[10px] md:text-sm uppercase mt-2 tracking-widest">Lacak pembelian bahagiamu</p>
       </div>
 
-      {/* === FILTER TABS === */}
-      <div className="flex overflow-x-auto pb-4 gap-2 mb-4 scrollbar-hide">
+      {/* === FILTER TABS - Mobile: Horizontal Scroll agar hemat tempat === */}
+      <div className="flex overflow-x-auto gap-3 mb-8 pb-2 scrollbar-hide">
         {filterTabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveFilter(tab.id)}
-            className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all border ${
-              activeFilter === tab.id
-                ? 'bg-[#154D71] text-white border-[#154D71] shadow-md'
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-            }`}
+            className={`
+              whitespace-nowrap px-5 py-2 border-[3px] md:border-4 border-black font-black text-[10px] md:text-sm uppercase tracking-tighter transition-all
+              shadow-[3px_3px_0px_0px_black] md:shadow-[4px_4px_0px_0px_black]
+              ${activeFilter === tab.id ? 'bg-[#facc15] shadow-none translate-x-0.5 translate-y-0.5' : 'bg-white opacity-60'}
+            `}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* === EMPTY STATE (Jika data kosong setelah difilter) === */}
+      {/* === EMPTY STATE === */}
       {filteredData.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 flex flex-col items-center justify-center text-center min-h-[300px]">
-          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-            {activeFilter === 'all' ? <FaHistory className="h-6 w-6 text-gray-400" /> : <FaSearch className="h-6 w-6 text-gray-400" />}
-          </div>
-          <h3 className="text-lg font-bold text-gray-800">
-            {activeFilter === 'all' ? 'Belum Ada Transaksi' : 'Tidak Ada Data'}
-          </h3>
-          <p className="text-gray-500 mt-2 text-sm">
-            {activeFilter === 'all' 
-              ? 'Anda belum melakukan pembelian apapun.' 
-              : `Tidak ditemukan transaksi dengan status "${filterTabs.find(t => t.id === activeFilter)?.label}".`}
+        <div className="bg-white border-[3px] md:border-4 border-black p-10 md:p-12 shadow-[8px_8px_0px_0px_black] flex flex-col items-center text-center">
+          <HiClock className="text-6xl text-gray-200 mb-4 rotate-[-12deg]" />
+          <h3 className="text-xl font-black uppercase mb-1">Kantong Kosong!</h3>
+          <p className="font-bold text-gray-400 mb-6 uppercase text-[10px] tracking-tight">
+             Belum ada transaksi di sini.
           </p>
+          <button onClick={() => navigate('/jelajah')} className="bg-[#ef4444] text-white border-[3px] border-black px-6 py-2 font-black uppercase text-xs shadow-[4px_4px_0px_0px_black] flex items-center gap-2">
+            <HiMagnifyingGlass /> Cari Event
+          </button>
         </div>
       ) : (
-        /* === LIST TRANSAKSI === */
-        <div className="space-y-4">
-          {filteredData.map((trx) => (
-            <div 
-              key={trx.id} 
-              className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-all duration-200"
-            >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                
- 
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`px-2.5 py-0.5 text-[10px] md:text-xs font-bold uppercase tracking-wide rounded-md border ${getStatusColor(trx.status)}`}>
-                      {trx.status}
-                    </span>
-                    <span className="text-xs text-gray-400 flex items-center">
-                      <FaHashtag className="w-3 h-3 mr-0.5" /> {trx.orderId}
-                    </span>
-                  </div>
-                  
-                  <h3 className="font-bold text-gray-800 text-lg mb-1 line-clamp-1">
-                    {trx.event?.name || 'Nama Event Tidak Tersedia'}
-                  </h3>
-                  
-                  <div className="flex items-center text-gray-500 text-sm">
-                    <FaCalendarAlt className="w-3.5 h-3.5 mr-2 text-gray-400" />
-                    {formatDate(trx.date)}
-                  </div>
+        <div className="space-y-8 md:space-y-6">
+          {filteredData.map((trx) => {
+            const status = getStatusBadge(trx.status);
+            return (
+              <div 
+                key={trx.id} 
+                className="group relative bg-white border-[3px] md:border-4 border-black p-5 md:p-6 shadow-[6px_6px_0px_0px_black] md:shadow-[12px_12px_0px_0px_black] active:translate-y-0.5 active:shadow-none transition-all duration-200"
+              >
+                {/* Floating Order ID - Lebih kecil di Mobile */}
+                <div className="absolute -top-3 right-2 md:-top-4 md:right-4 bg-black text-white px-2 py-0.5 font-black text-[8px] md:text-[10px] border-2 border-black flex items-center gap-1 shadow-[2px_2px_0px_0px_#3b82f6] md:shadow-[4px_4px_0px_0px_#3b82f6]">
+                   <HiHashtag /> {trx.orderId}
                 </div>
 
-                {/* Bagian Kanan (Harga & Tombol) */}
-                <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center border-t md:border-t-0 border-gray-100 pt-4 md:pt-0">
-                  <div className="text-right mb-0 md:mb-2">
-                    <p className="text-xs text-gray-500 mb-0.5">Total Pembayaran</p>
-                    <p className="text-[#154D71] font-bold text-lg">
-                      {formatRupiah(trx.grandTotal)}
-                    </p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 mt-2">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className={`px-3 py-0.5 text-[9px] font-black uppercase border-2 border-black shadow-[2px_2px_0px_0px_black] ${status.color}`}>
+                        {status.label}
+                      </span>
+                      <div className="flex items-center text-gray-400 font-bold text-[10px] uppercase tracking-widest italic">
+                        <HiCalendarDays className="mr-1 text-sm text-[#ef4444]" /> {formatDate(trx.date)}
+                      </div>
+                    </div>
+                    
+                    <h3 className="font-black text-black text-lg md:text-2xl uppercase tracking-tighter leading-tight group-hover:text-[#3b82f6] transition-colors">
+                      {trx.event?.name || 'EVENT TIDAK DIKETAHUI'}
+                    </h3>
                   </div>
-                  
-                  {trx.status.toLowerCase() === 'pending' ? (
-                    <button className="px-4 py-1.5 bg-[#E85434] text-white text-sm font-bold rounded-lg hover:bg-[#d04629] transition">
-                      Bayar Sekarang
-                    </button>
-                  ) : (
-                    <button className="text-sm font-medium text-[#154D71] hover:underline hover:text-[#0f3a55]">
-                      Lihat Detail &rarr;
-                    </button>
-                  )}
-                </div>
 
+                  {/* Pricing & CTA - Layout Horizontal di Mobile */}
+                  <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center border-t-[3px] md:border-t-0 md:border-l-4 border-dashed border-black pt-4 md:pt-0 md:pl-10">
+                    <div className="text-left md:text-right">
+                      <p className="text-[8px] md:text-[10px] font-black uppercase opacity-40 mb-0.5 tracking-widest leading-none">Total</p>
+                      <p className="text-black font-black text-xl md:text-2xl italic drop-shadow-[1.5px_1.5px_0px_#facc15]">
+                        {formatRupiah(trx.grandTotal)}
+                      </p>
+                    </div>
+                    
+                    {trx.status.toLowerCase() === 'pending' || trx.status.toLowerCase() === 'waiting_payment' ? (
+                      <button className="bg-[#ef4444] text-white px-4 py-2 border-[3px] border-black font-black uppercase text-[10px] shadow-[3px_3px_0px_0px_black] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1">
+                        <HiCreditCard /> BAYAR
+                      </button>
+                    ) : (
+                      <button className="font-black text-[10px] md:text-xs uppercase tracking-tighter flex items-center gap-1 hover:underline decoration-[3px] md:decoration-4 decoration-[#facc15] underline-offset-4">
+                        DETAIL <HiChevronRight className="stroke-[3px]" />
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
-    </>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+    </div>
   );
 }

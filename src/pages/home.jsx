@@ -4,6 +4,8 @@ import RegionNav from '../components/regionNav';
 import EventSlider from '../components/HomeEventSlider';
 import NewsSection from '../components/BeritaHome';
 import EventBanner from '../components/Cta';
+import Rekomendasi from '../components/HomeRekomendasi';
+import Terlaris from '../components/HomeTerlaris';
 
 export default function Home() {
   return (
@@ -32,9 +34,17 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 2. Region Navigation */}
+      <div className="mt-12 relative z-10">
+        <Rekomendasi />
+      </div>
+
+      {/* Region Navigation */}
       <div className="relative z-10 -mt-2">
         <RegionNav />
+      </div>
+
+      <div className="mt-12 relative z-10">
+        <Terlaris />
       </div>
 
       {/* 3. Event Slider */}

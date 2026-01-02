@@ -7,7 +7,7 @@ export default function EventSlider() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const STORAGE_URL = 'https://api.artatix.co.id/';
-  const SEE_ALL_LINK = '/events'; 
+  const SEE_ALL_LINK = '/jelajah'; 
 
   useEffect(() => {
     const fetchEvents = async () => {
