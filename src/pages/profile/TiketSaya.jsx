@@ -12,6 +12,7 @@ import {
 
 export default function MyTickets() {
   const [tickets, setTickets] = useState([]); 
+  // eslint-disable-next-line no-unused-vars
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1, 
@@ -19,7 +20,7 @@ export default function MyTickets() {
   });
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false); 
-  const [error, setError] = useState('');
+  const [, setError] = useState(null);
   
   const navigate = useNavigate();
 
@@ -126,7 +127,7 @@ export default function MyTickets() {
     fetchTickets(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+// eslint-disable-next-line no-unused-vars
   const handleLoadMore = () => {
     fetchTickets(pagination.currentPage + 1, true);
   };
@@ -139,6 +140,7 @@ export default function MyTickets() {
   };
 
   // Helper untuk warna status
+  // eslint-disable-next-line no-unused-vars
   const getStatusBadge = (status) => {
     if (status === 'active') {
       return { class: 'bg-green-100 text-green-700 border-green-200', text: 'Aktif' };

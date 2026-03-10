@@ -13,7 +13,7 @@ import {
 export default function TransactionHistory() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
 
   const navigate = useNavigate();
