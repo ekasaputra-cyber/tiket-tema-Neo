@@ -6,7 +6,7 @@ import {
   HiMapPin, 
   HiQrCode, 
   HiArrowPath, 
-  HiExclamationTriangle,
+  // HiExclamationTriangle,
   HiMagnifyingGlass
 } from 'react-icons/hi2';
 
