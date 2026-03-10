@@ -1,57 +1,59 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { HiFire, HiTrendingUp } from "react-icons/hi";
 import HomeCard from './CardHome';
-import { compactDecrypt } from 'jose'; // Library Dekripsi
+import { compactDecrypt } from 'jose';
+
+// 1. PINDAHKAN KE LUAR: Agar tidak menjadi dependency useEffect
+const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
 
 export default function EventTerlaris() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const STORAGE_URL = 'https://api.artatix.co.id/';
-  
-  // Secret Key hasil temuan dari source code
-  const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
+
+  // 2. BUNGKUS DENGAN useCallback: Mencegah re-creation fungsi pada setiap render
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Menggunakan parameter orderBy=click untuk data terlaris
+      const response = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=1&orderBy=click`);
+      const json = await response.json();
+
+      if (json?.data?.data) {
+        const rawData = json.data.data;
+
+        // LOGIKA DEKRIPSI
+        if (typeof rawData === 'string' && rawData.startsWith('eyJ')) {
+          try {
+            const { plaintext } = await compactDecrypt(rawData, SECRET_KEY);
+            const decodedString = new TextDecoder().decode(plaintext);
+            const decryptedJSON = JSON.parse(decodedString);
+
+            // Ambil array dari property .data hasil dekripsi
+            const arrayEvents = decryptedJSON?.data || [];
+            setEvents(Array.isArray(arrayEvents) ? arrayEvents : []);
+          } catch (decError) {
+            console.error("Gagal Dekripsi Terlaris:", decError);
+            setEvents([]);
+          }
+        } else {
+          // Jika data sudah transparan (Array)
+          setEvents(Array.isArray(rawData) ? rawData : []);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching terlaris:", error);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []); // Array kosong karena tidak ada dependency luar
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      setLoading(true);
-      try {
-        // Menggunakan parameter orderBy=click untuk data terlaris
-        const response = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=1`);
-        const json = await response.json();
-
-        if (json?.data?.data) {
-          const rawData = json.data.data;
-
-          // LOGIKA DEKRIPSI
-          if (typeof rawData === 'string' && rawData.startsWith('eyJ')) {
-            try {
-              const { plaintext } = await compactDecrypt(rawData, SECRET_KEY);
-              const decodedString = new TextDecoder().decode(plaintext);
-              const decryptedJSON = JSON.parse(decodedString);
-
-              // Ambil array dari property .data hasil dekripsi
-              const arrayEvents = decryptedJSON?.data || [];
-              setEvents(Array.isArray(arrayEvents) ? arrayEvents : []);
-            } catch (decError) {
-              console.error("Gagal Dekripsi Terlaris:", decError);
-              setEvents([]);
-            }
-          } else {
-            // Jika data sudah transparan (Array)
-            setEvents(Array.isArray(rawData) ? rawData : []);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching terlaris:", error);
-        setEvents([]);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchEvents();
-  }, []);
+  }, [fetchEvents]); // Masukkan fetchEvents sebagai dependency
 
   const formatEventDate = (startStr, endStr) => {
     if (!startStr) return '-';
@@ -93,13 +95,11 @@ export default function EventTerlaris() {
       </div>
 
       {/* --- SLIDER CONTENT --- */}
-      {/* Selalu cek Array.isArray sebelum .map */}
       {!loading && Array.isArray(events) && events.length > 0 && (
         <div className="flex overflow-x-auto py-4 md:py-6 gap-5 md:gap-8 scrollbar-hide snap-x relative z-10 items-stretch">
           {events.map((item, index) => (
             <div key={`${item.id}-${index}`} className="w-[240px] md:w-[320px] flex-shrink-0 snap-center group font-sans">
               <div className="relative h-full transform transition-all duration-300 md:group-hover:scale-[1.02]">
-                
                 <div className="absolute -top-2 -right-2 md:-top-3 md:-right-3 z-20 bg-red-600 text-white text-[8px] md:text-[10px] font-black px-2 md:px-3 py-1 border-2 border-black shadow-[2px_2px_0px_0px_black] md:shadow-[3px_3px_0px_0px_black] transform rotate-12 group-hover:rotate-0 transition-transform uppercase flex items-center gap-1">
                    <HiTrendingUp /> Trending
                 </div>

@@ -1,55 +1,57 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { HiCheckBadge, HiOutlineFaceSmile, HiArrowSmallRight } from "react-icons/hi2";
 import HomeCard from './CardHome';
-import { compactDecrypt } from 'jose'; // Import library dekripsi
+import { compactDecrypt } from 'jose';
+
+// 1. PINDAHKAN KE LUAR: Agar tidak memicu re-render atau peringatan dependency
+const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
+const STORAGE_URL = 'https://api.artatix.co.id/';
 
 export default function RekomendasiSlider() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const STORAGE_URL = 'https://api.artatix.co.id/';
-  
-  // Kunci rahasia yang ditemukan dari file JS Artatix
-  const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
+
+  // 2. BUNGKUS DENGAN useCallback: Mencegah fungsi dibuat ulang terus-menerus
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=1`);
+      const json = await response.json();
+
+      if (json?.data?.data) {
+        const encryptedString = json.data.data;
+
+        // PROSES DEKRIPSI
+        if (typeof encryptedString === 'string' && encryptedString.startsWith('eyJ')) {
+          try {
+            const { plaintext } = await compactDecrypt(encryptedString, SECRET_KEY);
+            const decodedData = new TextDecoder().decode(plaintext);
+            const finalData = JSON.parse(decodedData);
+            
+            // Set ke array events (data hasil dekripsi biasanya di dalam .data)
+            setEvents(finalData?.data || finalData || []);
+          } catch (decError) {
+            console.error("Gagal mendekripsi data:", decError);
+            setEvents([]);
+          }
+        } else {
+          // Fallback jika tidak dienkripsi
+          setEvents(Array.isArray(json.data.data) ? json.data.data : []);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=1`);
-        const json = await response.json();
-
-        if (json?.data?.data) {
-          const encryptedString = json.data.data;
-
-          // PROSES DEKRIPSI
-          // Jika data berupa string panjang (JWE), kita dekripsi
-          if (typeof encryptedString === 'string' && encryptedString.startsWith('eyJ')) {
-            try {
-              const { plaintext } = await compactDecrypt(encryptedString, SECRET_KEY);
-              const decodedData = new TextDecoder().decode(plaintext);
-              const finalData = JSON.parse(decodedData);
-              
-              // Artatix biasanya membungkus list di dalam property .data lagi
-              setEvents(finalData?.data || finalData || []);
-            } catch (decError) {
-              console.error("Gagal mendekripsi data:", decError);
-              setEvents([]);
-            }
-          } else {
-            // Jika data sudah dalam bentuk array (tidak dienkripsi)
-            setEvents(json.data.data);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching events:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchEvents();
-  }, []);
+  }, [fetchEvents]); // Sekarang fetchEvents aman dimasukkan ke sini
 
   const formatEventDate = (startStr, endStr) => {
     if (!startStr) return '-';
@@ -106,16 +108,14 @@ export default function RekomendasiSlider() {
       )}
 
       {/* --- SLIDER CONTENT --- */}
-      {!loading && events && events.length > 0 && (
+      {!loading && Array.isArray(events) && events.length > 0 && (
         <div className="flex overflow-x-auto py-4 md:py-6 gap-5 md:gap-8 scrollbar-hide snap-x relative z-10 items-stretch">
           {events.map((item, index) => (
             <div key={`${item.id}-${index}`} className="w-[240px] md:w-[320px] flex-shrink-0 snap-center group">
               <div className="relative h-full transform transition-all duration-300 md:group-hover:translate-x-1 md:group-hover:translate-y-1">
-                
                 <div className="absolute -top-2 -left-2 z-20 bg-black text-white text-[8px] md:text-[10px] font-black px-2 md:px-3 py-1 border-2 border-black transform -rotate-3 uppercase flex items-center gap-1">
                     TOP CHOICE
                 </div>
-                
                 <div className="border-[3px] md:border-4 border-black shadow-[4px_4px_0px_0px_black] md:shadow-[8px_8px_0px_0px_black] bg-white h-full flex flex-col">
                     <HomeCard
                       title={item.name}
@@ -136,7 +136,7 @@ export default function RekomendasiSlider() {
       )}
 
       {/* --- EMPTY STATE --- */}
-      {!loading && events.length === 0 && (
+      {!loading && (!events || events.length === 0) && (
         <div className="text-center py-16 bg-white/40 border-[3px] border-black border-dashed flex flex-col items-center mx-2">
           <HiOutlineFaceSmile className="text-6xl mb-3 opacity-20" />
           <p className="text-black font-black text-xl uppercase italic">Belum Ada Pilihan Editor!</p>

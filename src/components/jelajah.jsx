@@ -1,24 +1,22 @@
 // src/components/ExploreEvents.jsx
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // Tambahkan useCallback
 import EventCard from './evnCard'; 
-import { compactDecrypt } from 'jose'; // Import library dekripsi
+import { compactDecrypt } from 'jose';
+
+const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
 
 export default function ExploreEvents() {
-  // --- STATE ---
   const [events, setEvents] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
   const STORAGE_URL = 'https://api.artatix.co.id/';
-  
-  // Secret Key yang ditemukan dari source code Artatix
-  const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
 
-  // --- FETCH DATA ---
-  const fetchEvents = async (pageNumber) => {
+  // 2. BUNGKUS FETCH DATA DENGAN useCallback
+  const fetchEvents = useCallback(async (pageNumber) => {
     setLoading(true);
     try {
       const res = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=${pageNumber}&limit=8`);
@@ -28,26 +26,22 @@ export default function ExploreEvents() {
         let newData = [];
         const rawData = json.data.data;
 
-        // --- PROSES DEKRIPSI JWE ---
+        // PROSES DEKRIPSI JWE
         if (typeof rawData === 'string' && rawData.startsWith('eyJ')) {
           try {
             const { plaintext } = await compactDecrypt(rawData, SECRET_KEY);
             const decodedString = new TextDecoder().decode(plaintext);
             const decryptedJSON = JSON.parse(decodedString);
-            
-            // Artatix biasanya membungkus array di dalam property .data lagi hasil dekripsinya
             newData = decryptedJSON?.data || decryptedJSON || [];
           } catch (decError) {
             console.error("Gagal dekripsi data explore:", decError);
           }
         } else {
-          // Jika data tidak dienkripsi (fallback)
           newData = rawData || [];
         }
 
         const nextPage = json.data.nextPage;
 
-        // Pastikan newData adalah array sebelum di-spread
         if (Array.isArray(newData)) {
           setEvents((prevEvents) => {
             if (pageNumber === 1) return newData;
@@ -62,17 +56,17 @@ export default function ExploreEvents() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Dependensi kosong karena fungsi ini mandiri
 
+  // 3. TAMBAHKAN fetchEvents KE DEPENDENCY ARRAY
   useEffect(() => {
     fetchEvents(page);
-  }, [page]);
+  }, [page, fetchEvents]);
 
   const handleLoadMore = () => {
     setPage((prevPage) => prevPage + 1);
   };
 
-  // --- HELPER FORMATTER ---
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
@@ -84,19 +78,14 @@ export default function ExploreEvents() {
   };
 
   return (
-    <section className="py-16 bg-[#fffbeb] relative overflow-hidden font-sans"> {/* Pakai font Poppins */}
-      
-      {/* Dekorasi Background */}
+    <section className="py-16 bg-[#fffbeb] relative overflow-hidden font-sans">
       <div className="absolute top-10 right-0 w-32 h-32 bg-[#facc15] rounded-full blur-3xl opacity-50 pointer-events-none"></div>
       <div className="absolute bottom-10 left-0 w-40 h-40 bg-[#f472b6] rounded-full blur-3xl opacity-50 pointer-events-none"></div>
 
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
-        
-        {/* HEADER SECTION (Brutalist Style) */}
         <div className="text-center mb-16 relative">
           <div className="relative inline-block">
             <div className="absolute -top-4 -left-4 w-full h-full bg-[radial-gradient(#000_2px,transparent_2px)] [background-size:8px_8px] opacity-20 transform -rotate-3"></div>
-            
             <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none relative z-10">
               <span 
                 className="text-white relative z-10 mr-2"
@@ -120,8 +109,6 @@ export default function ExploreEvents() {
           </div>
         </div>
 
-        {/* GRID EVENT - MENGGUNAKAN EVENT CARD */}
-        {/* Tambahkan pengecekan Array.isArray(events) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 px-4 md:px-0">
           {Array.isArray(events) && events.map((item, index) => (
             <EventCard
@@ -136,7 +123,6 @@ export default function ExploreEvents() {
           ))}
         </div>
 
-        {/* LOADING STATE */}
         {loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
              {[1, 2, 3, 4].map((n) => (
@@ -145,14 +131,12 @@ export default function ExploreEvents() {
           </div>
         )}
 
-        {/* EMPTY STATE */}
         {!loading && (!events || events.length === 0) && (
           <div className="text-center py-20 border-4 border-black border-dashed bg-white mt-8">
             <h3 className="text-2xl font-black text-gray-400 uppercase">Belum ada event nih...</h3>
           </div>
         )}
 
-        {/* TOMBOL LOAD MORE */}
         {hasMore && !loading && events.length > 0 && (
           <div className="mt-16 text-center">
             <button 
@@ -167,7 +151,6 @@ export default function ExploreEvents() {
           </div>
         )}
         
-        {/* END OF RESULTS */}
         {!hasMore && events.length > 0 && (
            <div className="mt-12 text-center">
               <span className="bg-black text-white px-4 py-2 font-black transform -rotate-2 inline-block border-2 border-white shadow-[4px_4px_0px_0px_black] uppercase text-sm">
@@ -175,7 +158,6 @@ export default function ExploreEvents() {
               </span>
            </div>
         )}
-
       </div>
     </section>
   );

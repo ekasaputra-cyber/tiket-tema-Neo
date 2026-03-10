@@ -1,61 +1,61 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Jika di Next.js, ganti ke 'next/link'
+import React, { useState, useEffect, useCallback } from 'react'; // Tambahkan useCallback
+import { Link } from 'react-router-dom'; 
 import { MdArrowForward } from "react-icons/md";
 import HomeCard from './CardHome';
-import { compactDecrypt } from 'jose'; // Pastikan sudah npm install jose
+import { compactDecrypt } from 'jose';
+
+// 1. PINDAHKAN KE LUAR: Agar statis dan tidak dianggap dependency yang berubah-ubah
+const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
+const STORAGE_URL = 'https://api.artatix.co.id/';
 
 export default function EventSlider() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const STORAGE_URL = 'https://api.artatix.co.id/';
   const SEE_ALL_LINK = '/jelajah';
 
-  // Kunci dekripsi yang kita temukan dari source code Artatix
-  const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
+  // 2. BUNGKUS DENGAN useCallback: Mencegah siklus render tak terbatas (infinite loop)
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=1`);
+      const json = await response.json();
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=1`);
-        const json = await response.json();
+      if (json?.data?.data) {
+        const rawData = json.data.data;
 
-        if (json?.data?.data) {
-          const rawData = json.data.data;
+        // PROSES DEKRIPSI
+        if (typeof rawData === 'string' && rawData.startsWith('eyJ')) {
+          try {
+            const { plaintext } = await compactDecrypt(rawData, SECRET_KEY);
+            const decodedString = new TextDecoder().decode(plaintext);
+            const decryptedJSON = JSON.parse(decodedString);
 
-          // 1. CEK: Jika data berupa string (JWE Terenkripsi)
-          if (typeof rawData === 'string' && rawData.startsWith('eyJ')) {
-            try {
-              const { plaintext } = await compactDecrypt(rawData, SECRET_KEY);
-              const decodedString = new TextDecoder().decode(plaintext);
-              const decryptedJSON = JSON.parse(decodedString);
-
-              // 2. LOGIKA PENTING: Ambil array dari properti .data milik hasil dekripsi
-              const arrayEvents = decryptedJSON?.data || [];
-              setEvents(Array.isArray(arrayEvents) ? arrayEvents : []);
-            } catch (decError) {
-              console.error("Gagal Dekripsi:", decError);
-              setEvents([]);
-            }
-          } 
-          // 3. FALLBACK: Jika data sudah berupa Array (Tidak terenkripsi)
-          else {
-            setEvents(Array.isArray(rawData) ? rawData : []);
+            const arrayEvents = decryptedJSON?.data || [];
+            setEvents(Array.isArray(arrayEvents) ? arrayEvents : []);
+          } catch (decError) {
+            console.error("Gagal Dekripsi EventSlider:", decError);
+            setEvents([]);
           }
         } else {
-          setEvents([]);
+          setEvents(Array.isArray(rawData) ? rawData : []);
         }
-      } catch (error) {
-        console.error("Error fetching events:", error);
+      } else {
         setEvents([]);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []); // Array kosong karena tidak ada nilai state di dalam fungsi yang perlu dipantau
+
+  // 3. JALANKAN useEffect DENGAN fetchEvents SEBAGAI DEPENDENCY
+  useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [fetchEvents]);
 
   const formatEventDate = (startStr, endStr) => {
     if (!startStr) return '-';
