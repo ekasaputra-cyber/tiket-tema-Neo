@@ -18,7 +18,7 @@ export default function EventTerlaris() {
     setLoading(true);
     try {
       // Menggunakan parameter orderBy=click untuk data terlaris
-      const response = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=1&orderBy=click`);
+      const response = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=1`);
       const json = await response.json();
 
       if (json?.data?.data) {
@@ -132,7 +132,7 @@ export default function EventTerlaris() {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
