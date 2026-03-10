@@ -75,7 +75,7 @@ export default function EventCard({
       </div>
 
       {/* 2. BAGIAN KONTEN */}
-      <div className="p-4 flex flex-col h-[calc(100%-aspect-[1062/427])]">
+      <div className="p-4 flex flex-col w-full h-full aspect-[1062/427]">
         
         {/* Judul */}
         <h3 className={`font-black text-lg leading-tight line-clamp-2 min-h-[44px] mb-4 uppercase ${
