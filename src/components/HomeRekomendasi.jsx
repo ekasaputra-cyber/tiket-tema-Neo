@@ -1,11 +1,17 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
-import {  HiCheckBadge, HiOutlineFaceSmile, HiArrowSmallRight } from "react-icons/hi2"; // Perbaikan nama ikon
+import { HiCheckBadge, HiOutlineFaceSmile, HiArrowSmallRight } from "react-icons/hi2";
 import HomeCard from './CardHome';
+import { compactDecrypt } from 'jose'; // Import library dekripsi
 
 export default function RekomendasiSlider() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const STORAGE_URL = 'https://api.artatix.co.id/';
+  
+  // Kunci rahasia yang ditemukan dari file JS Artatix
+  const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -13,7 +19,29 @@ export default function RekomendasiSlider() {
       try {
         const response = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=1`);
         const json = await response.json();
-        if (json?.data?.data) setEvents(json.data.data);
+
+        if (json?.data?.data) {
+          const encryptedString = json.data.data;
+
+          // PROSES DEKRIPSI
+          // Jika data berupa string panjang (JWE), kita dekripsi
+          if (typeof encryptedString === 'string' && encryptedString.startsWith('eyJ')) {
+            try {
+              const { plaintext } = await compactDecrypt(encryptedString, SECRET_KEY);
+              const decodedData = new TextDecoder().decode(plaintext);
+              const finalData = JSON.parse(decodedData);
+              
+              // Artatix biasanya membungkus list di dalam property .data lagi
+              setEvents(finalData?.data || finalData || []);
+            } catch (decError) {
+              console.error("Gagal mendekripsi data:", decError);
+              setEvents([]);
+            }
+          } else {
+            // Jika data sudah dalam bentuk array (tidak dienkripsi)
+            setEvents(json.data.data);
+          }
+        }
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
@@ -32,24 +60,12 @@ export default function RekomendasiSlider() {
     if (!endDate || startDate.toDateString() === endDate.toDateString()) {
       return startDate.toLocaleDateString('id-ID', optionsFull);
     }
-    const startYear = startDate.getFullYear();
-    const endYear = endDate.getFullYear();
-    const startMonth = startDate.getMonth();
-    const endMonth = endDate.getMonth(); 
     const startDay = startDate.getDate();
-
-    if (startYear !== endYear) {
-      return `${startDate.toLocaleDateString('id-ID', optionsFull)} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
-    }
-    if (startMonth !== endMonth) {
-      const startDayMonth = startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
-      return `${startDayMonth} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
-    }
     return `${startDay} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
   };
 
   return (
-    <div className="container mx-auto max-w-6xl my-8 md:my-16 border-[3px] md:border-4 border-black bg-[#ffedd5] p-4 md:p-6 shadow-[6px_6px_0px_0px_black] md:shadow-[10px_10px_0px_0px_black] rounded-sm relative overflow-hidden">
+    <div className="container mx-auto max-w-6xl my-8 md:my-16 border-[3px] md:border-4 border-black bg-[#ffedd5] p-4 md:p-6 shadow-[6px_6px_0px_0px_black] md:shadow-[10px_10px_0px_0px_black] rounded-sm relative overflow-hidden font-sans">
       
       {/* Background Watermark */}
       <div className="absolute -bottom-2 -right-2 md:-bottom-4 md:-right-4 opacity-5 pointer-events-none select-none">
@@ -90,14 +106,14 @@ export default function RekomendasiSlider() {
       )}
 
       {/* --- SLIDER CONTENT --- */}
-      {!loading && events.length > 0 && (
+      {!loading && events && events.length > 0 && (
         <div className="flex overflow-x-auto py-4 md:py-6 gap-5 md:gap-8 scrollbar-hide snap-x relative z-10 items-stretch">
           {events.map((item, index) => (
             <div key={`${item.id}-${index}`} className="w-[240px] md:w-[320px] flex-shrink-0 snap-center group">
               <div className="relative h-full transform transition-all duration-300 md:group-hover:translate-x-1 md:group-hover:translate-y-1">
                 
                 <div className="absolute -top-2 -left-2 z-20 bg-black text-white text-[8px] md:text-[10px] font-black px-2 md:px-3 py-1 border-2 border-black transform -rotate-3 uppercase flex items-center gap-1">
-                   TOP CHOICE
+                    TOP CHOICE
                 </div>
                 
                 <div className="border-[3px] md:border-4 border-black shadow-[4px_4px_0px_0px_black] md:shadow-[8px_8px_0px_0px_black] bg-white h-full flex flex-col">
@@ -122,7 +138,7 @@ export default function RekomendasiSlider() {
       {/* --- EMPTY STATE --- */}
       {!loading && events.length === 0 && (
         <div className="text-center py-16 bg-white/40 border-[3px] border-black border-dashed flex flex-col items-center mx-2">
-          <HiOutlineFaceSmile className="text-6xl mb-3 opacity-20" /> {/* Perbaikan di sini */}
+          <HiOutlineFaceSmile className="text-6xl mb-3 opacity-20" />
           <p className="text-black font-black text-xl uppercase italic">Belum Ada Pilihan Editor!</p>
           <button className="mt-4 bg-white border-2 border-black px-4 py-1 font-bold text-xs shadow-[3px_3px_0px_0px_black] flex items-center gap-2 uppercase">
             Cek Event Lain <HiArrowSmallRight />

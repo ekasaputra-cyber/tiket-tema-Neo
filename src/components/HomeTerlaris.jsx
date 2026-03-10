@@ -1,21 +1,51 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { HiFire, HiTrendingUp } from "react-icons/hi";
 import HomeCard from './CardHome';
+import { compactDecrypt } from 'jose'; // Library Dekripsi
 
 export default function EventTerlaris() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const STORAGE_URL = 'https://api.artatix.co.id/';
+  
+  // Secret Key hasil temuan dari source code
+  const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
 
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
+        // Menggunakan parameter orderBy=click untuk data terlaris
         const response = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=1`);
         const json = await response.json();
-        if (json?.data?.data) setEvents(json.data.data);
+
+        if (json?.data?.data) {
+          const rawData = json.data.data;
+
+          // LOGIKA DEKRIPSI
+          if (typeof rawData === 'string' && rawData.startsWith('eyJ')) {
+            try {
+              const { plaintext } = await compactDecrypt(rawData, SECRET_KEY);
+              const decodedString = new TextDecoder().decode(plaintext);
+              const decryptedJSON = JSON.parse(decodedString);
+
+              // Ambil array dari property .data hasil dekripsi
+              const arrayEvents = decryptedJSON?.data || [];
+              setEvents(Array.isArray(arrayEvents) ? arrayEvents : []);
+            } catch (decError) {
+              console.error("Gagal Dekripsi Terlaris:", decError);
+              setEvents([]);
+            }
+          } else {
+            // Jika data sudah transparan (Array)
+            setEvents(Array.isArray(rawData) ? rawData : []);
+          }
+        }
       } catch (error) {
-        console.error("Error fetching events:", error);
+        console.error("Error fetching terlaris:", error);
+        setEvents([]);
       } finally {
         setLoading(false);
       }
@@ -32,24 +62,12 @@ export default function EventTerlaris() {
     if (!endDate || startDate.toDateString() === endDate.toDateString()) {
       return startDate.toLocaleDateString('id-ID', optionsFull);
     }
-    const startYear = startDate.getFullYear();
-    const endYear = endDate.getFullYear();
-    const startMonth = startDate.getMonth();
-    const endMonth = endDate.getMonth(); 
     const startDay = startDate.getDate();
-
-    if (startYear !== endYear) {
-      return `${startDate.toLocaleDateString('id-ID', optionsFull)} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
-    }
-    if (startMonth !== endMonth) {
-      const startDayMonth = startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
-      return `${startDayMonth} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
-    }
     return `${startDay} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
   };
 
   return (
-    <div className="container mx-auto max-w-6xl my-8 md:my-16 border-[3px] md:border-4 border-black bg-[#fefce8] p-4 md:p-6 shadow-[6px_6px_0px_0px_black] md:shadow-[10px_10px_0px_0px_black] rounded-sm relative overflow-hidden">
+    <div className="container mx-auto max-w-6xl my-8 md:my-16 border-[3px] md:border-4 border-black bg-[#fefce8] p-4 md:p-6 shadow-[6px_6px_0px_0px_black] md:shadow-[10px_10px_0px_0px_black] rounded-sm relative overflow-hidden font-sans">
       
       <div className="absolute -bottom-2 -left-2 md:-bottom-4 md:-left-4 opacity-5 pointer-events-none select-none">
         <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter text-black">BEST SELLER</h2>
@@ -75,18 +93,18 @@ export default function EventTerlaris() {
       </div>
 
       {/* --- SLIDER CONTENT --- */}
-      {!loading && events.length > 0 && (
+      {/* Selalu cek Array.isArray sebelum .map */}
+      {!loading && Array.isArray(events) && events.length > 0 && (
         <div className="flex overflow-x-auto py-4 md:py-6 gap-5 md:gap-8 scrollbar-hide snap-x relative z-10 items-stretch">
           {events.map((item, index) => (
-            <div key={`${item.id}-${index}`} className="w-[240px] md:w-[320px] flex-shrink-0 snap-center group">
+            <div key={`${item.id}-${index}`} className="w-[240px] md:w-[320px] flex-shrink-0 snap-center group font-sans">
               <div className="relative h-full transform transition-all duration-300 md:group-hover:scale-[1.02]">
                 
-                {/* Badge Trending */}
                 <div className="absolute -top-2 -right-2 md:-top-3 md:-right-3 z-20 bg-red-600 text-white text-[8px] md:text-[10px] font-black px-2 md:px-3 py-1 border-2 border-black shadow-[2px_2px_0px_0px_black] md:shadow-[3px_3px_0px_0px_black] transform rotate-12 group-hover:rotate-0 transition-transform uppercase flex items-center gap-1">
                    <HiTrendingUp /> Trending
                 </div>
                 
-                <div className="border-[3px] md:border-4 border-black shadow-[4px_4px_0px_0px_black] md:shadow-[6px_6px_0px_0px_black] bg-white h-full md:group-hover:shadow-[10px_10px_0px_0px_#fbbf24] flex flex-col">
+                <div className="border-[3px] md:border-4 border-black shadow-[4px_4px_0px_0px_black] md:shadow-[6px_6px_0px_0px_black] bg-white h-full md:group-hover:shadow-[10px_10px_0px_0px_#fbbf24] flex flex-col overflow-hidden">
                     <HomeCard
                       title={item.name}
                       slug={item.slug}
@@ -105,7 +123,14 @@ export default function EventTerlaris() {
         </div>
       )}
 
-      {/* --- LOADING & EMPTY STATE (Disesuaikan border & font) --- */}
+      {/* --- LOADING STATE --- */}
+      {loading && (
+        <div className="flex gap-6 overflow-hidden">
+           {[1,2,3].map(i => (
+             <div key={i} className="w-[240px] md:w-[320px] h-[350px] bg-white border-4 border-black animate-pulse" />
+           ))}
+        </div>
+      )}
 
       <style jsx>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }

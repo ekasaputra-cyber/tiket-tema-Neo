@@ -1,13 +1,19 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // Jika di Next.js, ganti ke 'next/link'
 import { MdArrowForward } from "react-icons/md";
 import HomeCard from './CardHome';
+import { compactDecrypt } from 'jose'; // Pastikan sudah npm install jose
 
 export default function EventSlider() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const STORAGE_URL = 'https://api.artatix.co.id/';
-  const SEE_ALL_LINK = '/jelajah'; 
+  const SEE_ALL_LINK = '/jelajah';
+
+  // Kunci dekripsi yang kita temukan dari source code Artatix
+  const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -15,9 +21,35 @@ export default function EventSlider() {
       try {
         const response = await fetch(`https://api.artatix.co.id/api/v1/customer/event?page=1`);
         const json = await response.json();
-        if (json?.data?.data) setEvents(json.data.data);
+
+        if (json?.data?.data) {
+          const rawData = json.data.data;
+
+          // 1. CEK: Jika data berupa string (JWE Terenkripsi)
+          if (typeof rawData === 'string' && rawData.startsWith('eyJ')) {
+            try {
+              const { plaintext } = await compactDecrypt(rawData, SECRET_KEY);
+              const decodedString = new TextDecoder().decode(plaintext);
+              const decryptedJSON = JSON.parse(decodedString);
+
+              // 2. LOGIKA PENTING: Ambil array dari properti .data milik hasil dekripsi
+              const arrayEvents = decryptedJSON?.data || [];
+              setEvents(Array.isArray(arrayEvents) ? arrayEvents : []);
+            } catch (decError) {
+              console.error("Gagal Dekripsi:", decError);
+              setEvents([]);
+            }
+          } 
+          // 3. FALLBACK: Jika data sudah berupa Array (Tidak terenkripsi)
+          else {
+            setEvents(Array.isArray(rawData) ? rawData : []);
+          }
+        } else {
+          setEvents([]);
+        }
       } catch (error) {
         console.error("Error fetching events:", error);
+        setEvents([]);
       } finally {
         setLoading(false);
       }
@@ -25,48 +57,21 @@ export default function EventSlider() {
     fetchEvents();
   }, []);
 
-  // --- LOGIKA BARU PEMFORMATAN TANGGAL (SUDAH DIBERSIHKAN) ---
   const formatEventDate = (startStr, endStr) => {
     if (!startStr) return '-';
-
     const startDate = new Date(startStr);
     const endDate = endStr ? new Date(endStr) : null;
-    
-    // Opsi format bahasa Indonesia
     const optionsFull = { day: 'numeric', month: 'long', year: 'numeric' };
-    
-    // HAPUS: const optionsMonth... (Tidak dipakai)
 
-    // Jika tidak ada end date, atau start == end
     if (!endDate || startDate.toDateString() === endDate.toDateString()) {
       return startDate.toLocaleDateString('id-ID', optionsFull);
     }
-
-    const startYear = startDate.getFullYear();
-    const endYear = endDate.getFullYear();
-    const startMonth = startDate.getMonth();
-    const endMonth = endDate.getMonth();
     const startDay = startDate.getDate();
-    
-    // HAPUS: const endDay... (Tidak dipakai)
-
-    // Skenario 1: Beda Tahun (31 Des 2023 - 01 Jan 2024)
-    if (startYear !== endYear) {
-      return `${startDate.toLocaleDateString('id-ID', optionsFull)} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
-    }
-    
-    // Skenario 2: Sama Tahun, Beda Bulan (31 Jan - 02 Feb 2024)
-    if (startMonth !== endMonth) {
-      const startDayMonth = startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long' });
-      return `${startDayMonth} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
-    }
-
-    // Skenario 3: Sama Tahun, Sama Bulan (01 - 03 Januari 2024)
     return `${startDay} - ${endDate.toLocaleDateString('id-ID', optionsFull)}`;
   };
 
   return (
-    <div className="container mx-auto max-w-6xl my-16 border-4 border-black bg-[#e0f2fe] p-6 shadow-[8px_8px_0px_0px_black] rounded-sm">
+    <div className="container mx-auto max-w-6xl my-16 border-4 border-black bg-[#e0f2fe] p-6 shadow-[8px_8px_0px_0px_black] rounded-sm font-sans">
       
       {/* --- HEADER SECTION --- */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -95,7 +100,7 @@ export default function EventSlider() {
       )}
 
       {/* --- SLIDER CONTENT --- */}
-      {!loading && events.length > 0 && (
+      {!loading && Array.isArray(events) && events.length > 0 && (
         <div className="flex overflow-x-auto pb-6 gap-6 scrollbar-hide snap-x">
           {events.map((item, index) => (
             <div key={`${item.id}-${index}`} className="min-w-[280px] md:min-w-[320px] snap-center transform hover:-translate-y-2 transition-transform duration-300">
@@ -117,7 +122,7 @@ export default function EventSlider() {
       )}
 
       {/* --- EMPTY STATE --- */}
-      {!loading && events.length === 0 && (
+      {!loading && (!Array.isArray(events) || events.length === 0) && (
         <div className="text-center py-12 bg-white border-2 border-black border-dashed">
           <p className="text-black font-bold text-xl uppercase">Belum ada event, nanti balik lagi ya!</p>
         </div>

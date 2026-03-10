@@ -1,6 +1,9 @@
 // src/components/ExploreEvents.jsx
+"use client";
+
 import React, { useState, useEffect } from 'react';
-import EventCard from './evnCard'; // Import komponen card yang sudah dibuat
+import EventCard from './evnCard'; 
+import { compactDecrypt } from 'jose'; // Import library dekripsi
 
 export default function ExploreEvents() {
   // --- STATE ---
@@ -10,6 +13,9 @@ export default function ExploreEvents() {
   const [hasMore, setHasMore] = useState(true);
 
   const STORAGE_URL = 'https://api.artatix.co.id/';
+  
+  // Secret Key yang ditemukan dari source code Artatix
+  const SECRET_KEY = new TextEncoder().encode("yJKCGitfzd8LFMEhOua76ttCLLxLJ6Dr");
 
   // --- FETCH DATA ---
   const fetchEvents = async (pageNumber) => {
@@ -19,13 +25,35 @@ export default function ExploreEvents() {
       const json = await res.json();
 
       if (json.message === 'success') {
-        const newData = json.data.data;
+        let newData = [];
+        const rawData = json.data.data;
+
+        // --- PROSES DEKRIPSI JWE ---
+        if (typeof rawData === 'string' && rawData.startsWith('eyJ')) {
+          try {
+            const { plaintext } = await compactDecrypt(rawData, SECRET_KEY);
+            const decodedString = new TextDecoder().decode(plaintext);
+            const decryptedJSON = JSON.parse(decodedString);
+            
+            // Artatix biasanya membungkus array di dalam property .data lagi hasil dekripsinya
+            newData = decryptedJSON?.data || decryptedJSON || [];
+          } catch (decError) {
+            console.error("Gagal dekripsi data explore:", decError);
+          }
+        } else {
+          // Jika data tidak dienkripsi (fallback)
+          newData = rawData || [];
+        }
+
         const nextPage = json.data.nextPage;
 
-        setEvents((prevEvents) => {
-          if (pageNumber === 1) return newData;
-          return [...prevEvents, ...newData];
-        });
+        // Pastikan newData adalah array sebelum di-spread
+        if (Array.isArray(newData)) {
+          setEvents((prevEvents) => {
+            if (pageNumber === 1) return newData;
+            return [...prevEvents, ...newData];
+          });
+        }
 
         setHasMore(nextPage !== null);
       }
@@ -45,8 +73,8 @@ export default function ExploreEvents() {
   };
 
   // --- HELPER FORMATTER ---
-  // Kita format tanggal di sini sebelum dikirim ke props card
   const formatDate = (dateString) => {
+    if (!dateString) return '-';
     const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('id-ID', options);
   };
@@ -56,7 +84,7 @@ export default function ExploreEvents() {
   };
 
   return (
-    <section className="py-16 bg-[#fffbeb] relative overflow-hidden">
+    <section className="py-16 bg-[#fffbeb] relative overflow-hidden font-sans"> {/* Pakai font Poppins */}
       
       {/* Dekorasi Background */}
       <div className="absolute top-10 right-0 w-32 h-32 bg-[#facc15] rounded-full blur-3xl opacity-50 pointer-events-none"></div>
@@ -64,48 +92,43 @@ export default function ExploreEvents() {
 
       <div className="container mx-auto px-4 max-w-7xl relative z-10">
         
-{/* OPSI 1: OUTLINE & BLOCK */}
-<div className="text-center mb-16 relative">
-  <div className="relative inline-block">
-    {/* Background Pattern Dotted (Hiasan) */}
-    <div className="absolute -top-4 -left-4 w-full h-full bg-[radial-gradient(#000_2px,transparent_2px)] [background-size:8px_8px] opacity-20 transform -rotate-3"></div>
-    
-    <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none relative z-10">
-      {/* JELAJAH: Putih dengan Stroke Hitam */}
-      <span 
-        className="text-white relative z-10 mr-2"
-        style={{ 
-          WebkitTextStroke: '3px black', // Garis tepi tebal
-          textShadow: '4px 4px 0px #facc15' // Bayangan kuning
-        }}
-      >
-        JELAJAH
-      </span>
-      
-      {/* SERU: Blok Hitam Miring */}
-      <span className="inline-block transform rotate-6 bg-black text-[#facc15] px-4 py-1 border-b-4 border-r-4 border-gray-400 hover:rotate-0 transition-transform cursor-default">
-        SERU!
-      </span>
-    </h2>
-  </div>
+        {/* HEADER SECTION (Brutalist Style) */}
+        <div className="text-center mb-16 relative">
+          <div className="relative inline-block">
+            <div className="absolute -top-4 -left-4 w-full h-full bg-[radial-gradient(#000_2px,transparent_2px)] [background-size:8px_8px] opacity-20 transform -rotate-3"></div>
+            
+            <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none relative z-10">
+              <span 
+                className="text-white relative z-10 mr-2"
+                style={{ 
+                  WebkitTextStroke: '3px black',
+                  textShadow: '4px 4px 0px #facc15'
+                }}
+              >
+                JELAJAH
+              </span>
+              <span className="inline-block transform rotate-6 bg-black text-[#facc15] px-4 py-1 border-b-4 border-r-4 border-gray-400 hover:rotate-0 transition-transform cursor-default">
+                SERU!
+              </span>
+            </h2>
+          </div>
 
-  {/* Tagline: Style Sticker */}
-  <div className="mt-6 flex justify-center">
-    <p className="font-bold text-black text-sm md:text-lg bg-white border-2 border-black px-6 py-2 rounded-full shadow-[4px_4px_0px_0px_#ef4444] transform hover:-translate-y-1 transition-transform">
-      Temukan event musik, festival, dan hiburan paling hits di kotamu!
-    </p>
-  </div>
-</div>
+          <div className="mt-6 flex justify-center">
+            <p className="font-bold text-black text-sm md:text-lg bg-white border-2 border-black px-6 py-2 rounded-full shadow-[4px_4px_0px_0px_#ef4444] transform hover:-translate-y-1 transition-transform">
+              Temukan event musik, festival, dan hiburan paling hits di kotamu!
+            </p>
+          </div>
+        </div>
 
         {/* GRID EVENT - MENGGUNAKAN EVENT CARD */}
+        {/* Tambahkan pengecekan Array.isArray(events) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 px-4 md:px-0">
-          {events.map((item, index) => (
+          {Array.isArray(events) && events.map((item, index) => (
             <EventCard
               key={`${item.id}-${index}`}
               title={item.name}
               date={formatDate(item.dateStart)}
-              // Menggabungkan lokasi dan kota agar lebih lengkap
-              location={`${item.location}, ${item.city}`} 
+              location={`${item.location || ''}, ${item.city || ''}`} 
               imageUrl={getImageUrl(item.image)}
               lowestPrice={item.lowestPrice}
               slug={item.slug}
@@ -117,13 +140,13 @@ export default function ExploreEvents() {
         {loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
              {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="h-80 bg-gray-200 animate-pulse rounded-xl"></div>
+                <div key={n} className="h-80 bg-white border-4 border-black animate-pulse shadow-[8px_8px_0px_0px_black]"></div>
              ))}
           </div>
         )}
 
         {/* EMPTY STATE */}
-        {!loading && events.length === 0 && (
+        {!loading && (!events || events.length === 0) && (
           <div className="text-center py-20 border-4 border-black border-dashed bg-white mt-8">
             <h3 className="text-2xl font-black text-gray-400 uppercase">Belum ada event nih...</h3>
           </div>
@@ -147,8 +170,8 @@ export default function ExploreEvents() {
         {/* END OF RESULTS */}
         {!hasMore && events.length > 0 && (
            <div className="mt-12 text-center">
-              <span className="bg-black text-white px-4 py-2 font-bold transform -rotate-2 inline-block border-2 border-white shadow-lg">
-                end of results
+              <span className="bg-black text-white px-4 py-2 font-black transform -rotate-2 inline-block border-2 border-white shadow-[4px_4px_0px_0px_black] uppercase text-sm">
+                akhir pencarian
               </span>
            </div>
         )}
